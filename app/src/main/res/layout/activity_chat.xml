@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cn.dreamtobe.kpswitch.widget.KPSwitchRootRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <include layout="@layout/toolbar"
+        android:id="@+id/include_toolbar"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:overScrollMode="never"
+        android:id="@+id/rv_chat"
+        android:layout_below="@id/include_toolbar"
+        android:layout_above="@id/include_input_tool">
+    </androidx.recyclerview.widget.RecyclerView>
+
+    <include layout="@layout/chat_input_tool"
+        android:id="@+id/include_input_tool"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"/>
+
+    <cn.dreamtobe.kpswitch.widget.KPSwitchFSPanelFrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/max_panel_height"
+        android:id="@+id/kp_fl_message_input_tool"
+        android:visibility="gone">
+
+    </cn.dreamtobe.kpswitch.widget.KPSwitchFSPanelFrameLayout>
+
+</cn.dreamtobe.kpswitch.widget.KPSwitchRootRelativeLayout>

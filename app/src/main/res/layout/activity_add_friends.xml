@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <include layout="@layout/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/include_toolbar"/>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorInputToolBg"
+        android:id="@+id/fl_search_friend"
+        android:layout_below="@id/include_toolbar">
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/et_search_friend"
+            android:layout_marginStart="40dp"
+            android:layout_marginEnd="40dp"
+            android:hint="@string/search_friend_hint"
+            android:textSize="18sp"
+            android:drawableStart="@drawable/ic_search_friend"
+            android:drawablePadding="15dp"
+            android:padding="10dp"
+            android:background="@drawable/message_input_bg"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp" />
+
+    </FrameLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/rv_search_friend_result"
+        android:layout_below="@+id/fl_search_friend"/>
+
+</RelativeLayout>

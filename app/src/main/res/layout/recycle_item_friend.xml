@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="60dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:layout_width="40dp"
+        android:layout_height="match_parent"
+        android:id="@+id/civ_recycle_item_friend_header"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        tools:src="@drawable/ic_launcher"
+        android:layout_marginStart="15dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_recycle_item_friend_nickname"
+        android:textSize="16sp"
+        tools:text="学校"
+        android:textColor="@android:color/black"
+        app:layout_constraintTop_toTopOf="@id/civ_recycle_item_friend_header"
+        app:layout_constraintLeft_toRightOf="@id/civ_recycle_item_friend_header"
+        android:layout_marginStart="65dp"
+        android:layout_marginEnd="15dp"
+        android:lines="1"
+        android:ellipsize="end"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_recycle_item_friend_signature"
+        app:layout_constraintLeft_toRightOf="@id/civ_recycle_item_friend_header"
+        app:layout_constraintTop_toBottomOf="@id/tv_recycle_item_friend_nickname"
+        app:layout_constraintBottom_toBottomOf="@id/civ_recycle_item_friend_header"
+        android:layout_marginStart="65dp"
+        android:layout_marginEnd="15dp"
+        android:lines="1"
+        android:ellipsize="end"
+        android:textSize="13sp"
+        tools:text="测试用的个性签名测试用的个性签名测试用的个性签名测试用的个性签名"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

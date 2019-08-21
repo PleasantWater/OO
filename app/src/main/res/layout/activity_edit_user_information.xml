@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <include layout="@layout/toolbar"
+        android:id="@+id/include_toolbar"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_below="@id/include_toolbar"
+        android:id="@+id/ll_nickname"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="@drawable/edit_user_information_item_selector">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="@string/nickname"
+            android:gravity="center_vertical"
+            android:layout_marginStart="15dp"
+            android:textSize="18sp"
+            android:textColor="@android:color/black"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            tools:text="test_yb"
+            android:id="@+id/tv_nickname"
+            android:gravity="center_vertical|end"
+            android:paddingEnd="20dp"
+            android:paddingStart="20dp"
+            android:singleLine="true"
+            android:ellipsize="marquee"
+            android:textSize="17sp"/>
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_recycle_item_edit_icon"
+            android:layout_marginEnd="10dp"/>
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.3dp"
+        android:background="@android:color/darker_gray"
+        android:layout_below="@id/ll_nickname"
+        android:layout_marginStart="15dp"
+        android:id="@+id/view_divider_below_nickname"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_below="@id/view_divider_below_nickname"
+        android:id="@+id/ll_gender"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="@drawable/edit_user_information_item_selector">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="@string/gender"
+            android:gravity="center_vertical"
+            android:layout_marginStart="15dp"
+            android:textSize="18sp"
+            android:textColor="@android:color/black"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            tools:text="男"
+            android:id="@+id/tv_gender"
+            android:gravity="center_vertical|end"
+            android:paddingEnd="20dp"
+            android:paddingStart="20dp"
+            android:textSize="17sp"/>
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_recycle_item_edit_icon"
+            android:layout_marginEnd="10dp"/>
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.3dp"
+        android:id="@+id/view_divider_below_gender"
+        android:layout_below="@id/ll_gender"
+        android:background="@android:color/darker_gray"
+        android:layout_marginStart="15dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:id="@+id/ll_signature"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="@drawable/edit_user_information_item_selector"
+        android:layout_below="@id/view_divider_below_gender">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="@string/signature"
+            android:gravity="center_vertical"
+            android:layout_marginStart="15dp"
+            android:textSize="18sp"
+            android:textColor="@android:color/black"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            tools:text="这个人懒死了~这个人懒死了~这个人懒死了~懒死了~懒死了~懒死了~"
+            android:singleLine="true"
+            android:ellipsize="marquee"
+            android:paddingStart="20dp"
+            android:id="@+id/tv_signature"
+            android:gravity="center_vertical|end"
+            android:paddingEnd="20dp"
+            android:textSize="17sp"/>
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_recycle_item_edit_icon"
+            android:layout_marginEnd="10dp"/>
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.3dp"
+        android:id="@+id/view_divider_below_signature"
+        android:layout_below="@id/ll_signature"
+        android:background="@android:color/darker_gray"
+        android:layout_marginStart="15dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:id="@+id/ll_hometown"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="@drawable/edit_user_information_item_selector"
+        android:layout_below="@id/view_divider_below_signature">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="@string/hometown"
+            android:gravity="center_vertical"
+            android:layout_marginStart="15dp"
+            android:textSize="18sp"
+            android:textColor="@android:color/black"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            tools:text="test_yb"
+            android:id="@+id/tv_hometown"
+            android:gravity="center_vertical|end"
+            android:paddingEnd="20dp"
+            android:paddingStart="20dp"
+            android:singleLine="true"
+            android:ellipsize="marquee"
+            android:textSize="17sp"/>
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_recycle_item_edit_icon"
+            android:layout_marginEnd="10dp"/>
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.3dp"
+        android:background="@android:color/darker_gray"
+        android:id="@+id/view_divider_below_home"
+        android:layout_below="@+id/ll_hometown"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:id="@+id/ll_school"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="@drawable/edit_user_information_item_selector"
+        android:layout_below="@id/view_divider_below_home">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="@string/school"
+            android:gravity="center_vertical"
+            android:layout_marginStart="15dp"
+            android:textSize="18sp"
+            android:textColor="@android:color/black"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            tools:text="test_yb"
+            android:id="@+id/tv_school"
+            android:gravity="center_vertical|end"
+            android:paddingEnd="20dp"
+            android:paddingStart="20dp"
+            android:singleLine="true"
+            android:ellipsize="marquee"
+            android:textSize="17sp"/>
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_recycle_item_edit_icon"
+            android:layout_marginEnd="10dp"/>
+
+    </LinearLayout>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/btn_save_user_information"
+        android:layout_marginStart="40dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginEnd="40dp"
+        android:text="@string/save_user_information"
+        android:textSize="18sp"
+        android:textColor="@android:color/white"
+        android:background="@drawable/btn_bg"
+        android:layout_alignParentBottom="true"/>
+
+</RelativeLayout>

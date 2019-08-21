@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="250dp"
+                android:id="@+id/iv_user_bg"
+                tools:src="@android:color/black"
+                android:scaleType="centerCrop"/>
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:id="@+id/iv_user_head"
+                android:layout_above="@+id/tv_user_name"
+                tools:src="@drawable/ic_launcher"
+                app:civ_border_width="2dp"
+                app:civ_border_color="@android:color/white"
+                android:layout_marginStart="10dp"
+                android:layout_marginBottom="-40dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/tv_nickname"
+                tools:text="学校"
+                android:textSize="20sp"
+                android:textColor="@android:color/white"
+                android:layout_above="@id/tv_user_name"
+                android:layout_marginStart="110dp"
+                android:layout_marginEnd="10dp"
+                android:lines="1"
+                android:ellipsize="end"
+                android:paddingBottom="5dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/tv_user_name"
+                android:layout_below="@id/iv_user_bg"
+                android:layout_marginStart="110dp"
+                android:layout_marginEnd="10dp"
+                android:lines="1"
+                android:ellipsize="end"
+                tools:text="text_yb1"
+                android:paddingTop="5dp"/>
+
+            <TextView
+                android:id="@+id/tv_user_gender"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/tv_user_name"
+                android:layout_marginTop="5dp"
+                tools:text="男"
+                android:layout_marginStart="110dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tv_user_school"
+                android:layout_below="@id/tv_user_name"
+                android:layout_toEndOf="@id/tv_user_gender"
+                tools:text="重庆邮电大学"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="5dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tv_user_hometown"
+                android:layout_below="@id/tv_user_name"
+                android:layout_toEndOf="@id/tv_user_school"
+                tools:text="重庆-南川"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="5dp"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/tv_user_signature"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_below="@id/tv_user_hometown"
+                android:layout_marginTop="20dp"
+                android:drawableStart="@drawable/ic_signature"
+                android:lines="1"
+                android:ellipsize="end"
+                android:drawablePadding="10dp"
+                android:gravity="center_vertical"
+                tools:text="小随性我司会好小随性我司会好小随性我司会好小随性我司会好小随性我司会好"/>
+
+        </RelativeLayout>
+
+    </ScrollView>
+
+    <include layout="@layout/toolbar"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/btn_user_information"
+        android:layout_gravity="bottom"
+        android:layout_marginStart="40dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginEnd="40dp"
+        tools:text="发消息"
+        android:textSize="18sp"
+        android:textColor="@android:color/white"
+        android:background="@drawable/btn_bg"/>
+
+</FrameLayout>

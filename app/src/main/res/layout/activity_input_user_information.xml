@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <include layout="@layout/toolbar"
+        android:id="@+id/include_toolbar"/>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/et_input_user_information"
+        android:layout_below="@id/include_toolbar"
+        android:layout_margin="15dp"
+        android:gravity="start"
+        android:textSize="18sp"
+        android:background="@null"/>
+
+</RelativeLayout>
