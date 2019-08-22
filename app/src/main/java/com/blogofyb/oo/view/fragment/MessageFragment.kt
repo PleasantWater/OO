@@ -4,8 +4,10 @@ import android.os.Bundle
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import cn.leancloud.im.v2.AVIMConversation
-import cn.leancloud.im.v2.AVIMMessage
+import com.avos.avoscloud.im.v2.AVIMConversation
+import com.avos.avoscloud.im.v2.AVIMMessage
+//import cn.leancloud.im.v2.AVIMConversation
+//import cn.leancloud.im.v2.AVIMMessage
 import com.blogofyb.oo.R
 import com.blogofyb.oo.base.mvp.BaseFragment
 import com.blogofyb.oo.bean.ConversationBean

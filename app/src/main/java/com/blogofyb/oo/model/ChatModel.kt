@@ -2,17 +2,28 @@ package com.blogofyb.oo.model
 
 import android.annotation.SuppressLint
 import android.util.Log
-import cn.leancloud.AVFile
-import cn.leancloud.AVObject
-import cn.leancloud.AVQuery
-import cn.leancloud.AVUser
-import cn.leancloud.im.v2.*
-import cn.leancloud.im.v2.callback.AVIMConversationCallback
-import cn.leancloud.im.v2.callback.AVIMMessagesQueryCallback
-import cn.leancloud.im.v2.messages.AVIMAudioMessage
-import cn.leancloud.im.v2.messages.AVIMImageMessage
-import cn.leancloud.im.v2.messages.AVIMTextMessage
-import cn.leancloud.im.v2.messages.AVIMVideoMessage
+import com.avos.avoscloud.AVFile
+import com.avos.avoscloud.AVObject
+import com.avos.avoscloud.AVQuery
+import com.avos.avoscloud.AVUser
+import com.avos.avoscloud.im.v2.*
+import com.avos.avoscloud.im.v2.callback.AVIMConversationCallback
+import com.avos.avoscloud.im.v2.callback.AVIMMessagesQueryCallback
+import com.avos.avoscloud.im.v2.messages.AVIMAudioMessage
+import com.avos.avoscloud.im.v2.messages.AVIMImageMessage
+import com.avos.avoscloud.im.v2.messages.AVIMTextMessage
+import com.avos.avoscloud.im.v2.messages.AVIMVideoMessage
+//import cn.leancloud.AVFile
+//import cn.leancloud.AVObject
+//import cn.leancloud.AVQuery
+//import cn.leancloud.AVUser
+//import cn.leancloud.im.v2.*
+//import cn.leancloud.im.v2.callback.AVIMConversationCallback
+//import cn.leancloud.im.v2.callback.AVIMMessagesQueryCallback
+//import cn.leancloud.im.v2.messages.AVIMAudioMessage
+//import cn.leancloud.im.v2.messages.AVIMImageMessage
+//import cn.leancloud.im.v2.messages.AVIMTextMessage
+//import cn.leancloud.im.v2.messages.AVIMVideoMessage
 import com.blogofyb.oo.base.mvp.BaseModel
 import com.blogofyb.oo.bean.MessageBean
 import com.blogofyb.oo.config.KEY_OBJECT_ID
@@ -43,7 +54,7 @@ class ChatModel : BaseModel(), IChatModel {
                     callback(MessageBean(
                         isSend = true,
                         text = text,
-                        header = AVUser.currentUser().getString(KEY_USER_HEADER))
+                        header = AVUser.getCurrentUser().getString(KEY_USER_HEADER))
                     )
                 }
             }
@@ -57,32 +68,24 @@ class ChatModel : BaseModel(), IChatModel {
     }
 
     override fun sendPic(path: String, callback: (MessageBean) -> Unit) {
-        val pic = AVFile("${conversation.conversationId}_${System.currentTimeMillis()}.png", File(path))
-        pic.saveInBackground()
-            .subscribeOn(Schedulers.io())
-            .observeOn(Schedulers.io())
-            .safeSubscribeBy {
-                val file = AVFile(it.name, it.url, null)
-                Log.e("TEST", it.url)
-                val message = AVIMImageMessage(file)
-                message.text = "[图片]"
-                conversation.sendMessageByCustom(
-                    message,
-                    object  : AVIMConversationCallback() {
-                        override fun done(e: AVIMException?) {
-                            if (e == null) {
-                                callback(MessageBean(
-                                    isSend = true,
-                                    pic = it.url,
-                                    header = AVUser.currentUser().getString(KEY_USER_HEADER))
-                                )
-                            } else {
-                                Log.e("senPic", e.message ?: "Exception")
-                            }
-                        }
+        val pic = AVFile.withAbsoluteLocalPath("${conversation.conversationId}_${System.currentTimeMillis()}.png", path)
+        val message = AVIMImageMessage(pic)
+        conversation.sendMessageByCustom(
+            message,
+            object  : AVIMConversationCallback() {
+                override fun done(e: AVIMException?) {
+                    if (e == null) {
+                        callback(MessageBean(
+                            isSend = true,
+                            pic = pic.url,
+                            header = AVUser.getCurrentUser().getString(KEY_USER_HEADER))
+                        )
+                    } else {
+                        Log.e("senPic", e.message ?: "Exception")
                     }
-                )
+                }
             }
+        )
     }
 
     override fun getMessage(limit: Int, callback: (List<MessageBean>) -> Unit) {
@@ -141,7 +144,7 @@ class ChatModel : BaseModel(), IChatModel {
                         if (avimMessage is AVIMAudioMessage) avimMessage.fileUrl else "",
                         if (avimMessage is AVIMVideoMessage) avimMessage.fileUrl else "",
                         "",
-                        avimMessage.from == AVUser.currentUser().username
+                        avimMessage.from == AVUser.getCurrentUser().username
                     ))
                 }
             }

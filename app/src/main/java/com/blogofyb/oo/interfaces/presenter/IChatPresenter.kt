@@ -1,7 +1,8 @@
 package com.blogofyb.oo.interfaces.presenter
 
-import cn.leancloud.im.v2.AVIMConversation
-import cn.leancloud.im.v2.AVIMMessage
+//import cn.leancloud.im.v2.AVIMConversation
+//import cn.leancloud.im.v2.AVIMMessage
+import com.avos.avoscloud.im.v2.AVIMConversation
 import com.blogofyb.oo.base.mvp.IBasePresenter
 import com.blogofyb.oo.interfaces.model.IChatModel
 import com.blogofyb.oo.interfaces.view.IChatView

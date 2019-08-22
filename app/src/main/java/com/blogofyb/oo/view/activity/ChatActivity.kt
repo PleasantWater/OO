@@ -15,13 +15,20 @@ import android.view.ViewTreeObserver
 import androidx.recyclerview.widget.LinearLayoutManager
 import cn.dreamtobe.kpswitch.util.KPSwitchConflictUtil
 import cn.dreamtobe.kpswitch.util.KeyboardUtil
-import cn.leancloud.AVUser
-import cn.leancloud.im.v2.AVIMConversation
-import cn.leancloud.im.v2.AVIMMessage
-import cn.leancloud.im.v2.messages.AVIMAudioMessage
-import cn.leancloud.im.v2.messages.AVIMImageMessage
-import cn.leancloud.im.v2.messages.AVIMTextMessage
-import cn.leancloud.im.v2.messages.AVIMVideoMessage
+import com.avos.avoscloud.AVUser
+import com.avos.avoscloud.im.v2.AVIMConversation
+import com.avos.avoscloud.im.v2.AVIMMessage
+import com.avos.avoscloud.im.v2.messages.AVIMAudioMessage
+import com.avos.avoscloud.im.v2.messages.AVIMImageMessage
+import com.avos.avoscloud.im.v2.messages.AVIMTextMessage
+import com.avos.avoscloud.im.v2.messages.AVIMVideoMessage
+//import cn.leancloud.AVUser
+//import cn.leancloud.im.v2.AVIMConversation
+//import cn.leancloud.im.v2.AVIMMessage
+//import cn.leancloud.im.v2.messages.AVIMAudioMessage
+//import cn.leancloud.im.v2.messages.AVIMImageMessage
+//import cn.leancloud.im.v2.messages.AVIMTextMessage
+//import cn.leancloud.im.v2.messages.AVIMVideoMessage
 import com.blogofyb.oo.R
 import com.blogofyb.oo.base.mvp.BaseActivity
 import com.blogofyb.oo.bean.MessageBean
@@ -83,7 +90,7 @@ class ChatActivity : BaseActivity<IChatView, IChatPresenter, IChatModel>(), ICha
                         if (message is AVIMAudioMessage) message.fileUrl else "",
                         if (message is AVIMVideoMessage) message.fileUrl else "",
                         intent?.getStringExtra(KEY_USER_HEADER) ?: "",
-                        message.from == AVUser.currentUser().username
+                        message.from == AVUser.getCurrentUser().username
                     ))
                 }
             }
@@ -106,7 +113,7 @@ class ChatActivity : BaseActivity<IChatView, IChatPresenter, IChatModel>(), ICha
 
     override fun showMessage(message: List<MessageBean>) {
         val fromHeader = intent?.getStringExtra(KEY_USER_HEADER)
-        val currentHeader = AVUser.currentUser()?.getString(KEY_USER_HEADER)
+        val currentHeader = AVUser.getCurrentUser()?.getString(KEY_USER_HEADER)
         mAdapter.refreshData(
             message.map {
                 if (it.isSend) {

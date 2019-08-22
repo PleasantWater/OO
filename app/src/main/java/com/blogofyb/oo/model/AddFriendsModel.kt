@@ -1,11 +1,12 @@
 package com.blogofyb.oo.model
 
 import android.util.Log
-import cn.leancloud.AVException
-import cn.leancloud.AVQuery
-import cn.leancloud.AVUser
-import cn.leancloud.callback.CloudQueryCallback
-import cn.leancloud.query.AVCloudQueryResult
+import com.avos.avoscloud.*
+//import cn.leancloud.AVException
+//import cn.leancloud.AVQuery
+//import cn.leancloud.AVUser
+//import cn.leancloud.callback.CloudQueryCallback
+//import cn.leancloud.query.AVCloudQueryResult
 import com.blogofyb.oo.base.mvp.BaseModel
 import com.blogofyb.oo.bean.UserBean
 import com.blogofyb.oo.config.*

@@ -2,22 +2,27 @@ package com.blogofyb.oo.model
 
 import android.annotation.SuppressLint
 import android.util.Log
-import cn.leancloud.AVInstallation
-import cn.leancloud.AVUser
-import cn.leancloud.Messages
-import cn.leancloud.im.AVIMOptions
-import cn.leancloud.im.v2.AVIMClient
-import cn.leancloud.im.v2.AVIMClientOpenOption
-import cn.leancloud.im.v2.AVIMException
-import cn.leancloud.im.v2.callback.AVIMClientCallback
-import cn.leancloud.session.AVConnectionListener
-import cn.leancloud.session.AVConnectionManager
+import com.avos.avoscloud.*
+import com.avos.avoscloud.im.v2.AVIMClient
+import com.avos.avoscloud.im.v2.AVIMException
+import com.avos.avoscloud.im.v2.callback.AVIMClientCallback
+//import cn.leancloud.AVInstallation
+//import cn.leancloud.AVUser
+//import cn.leancloud.Messages
+//import cn.leancloud.im.AVIMOptions
+//import cn.leancloud.im.v2.AVIMClient
+//import cn.leancloud.im.v2.AVIMClientOpenOption
+//import cn.leancloud.im.v2.AVIMException
+//import cn.leancloud.im.v2.callback.AVIMClientCallback
+//import cn.leancloud.session.AVConnectionListener
+//import cn.leancloud.session.AVConnectionManager
 import com.blogofyb.oo.base.mvp.BaseModel
 import com.blogofyb.oo.config.KEY_INSTALLATION_ID
 import com.blogofyb.oo.interfaces.model.ILoginModel
 import com.blogofyb.oo.util.GlobalMessageManager
 import com.blogofyb.oo.util.UserManager
 import com.blogofyb.oo.util.extensions.safeSubscribeBy
+import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
@@ -30,39 +35,50 @@ class LoginModel : BaseModel(), ILoginModel {
     override fun login(account: String, password: String, remember: Boolean, callback: ILoginModel.Callback) {
         val check = checkInput(account, password)
         if (check.first) {
-            AVUser.logIn(account, password)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(Schedulers.io())
-                    .map {
-                        if (remember) {
-                            UserManager.saveUserInformation(account, password)
-                        }
-                        AVInstallation.getCurrentInstallation().saveInBackground()
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(Schedulers.io())
-                                .safeSubscribeBy {
-                                    val user = AVUser.currentUser()
-                                    user?.put(KEY_INSTALLATION_ID, AVInstallation.getCurrentInstallation().installationId)
-                                    user?.save()
+            AVUser.logInInBackground(
+                account,
+                password,
+                object : LogInCallback<AVUser>() {
+                    override fun done(user: AVUser?, e: AVException?) {
+                        if (e != null) return
+                        Observable.just(user)
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(Schedulers.io())
+                            .map {
+                                if (remember) {
+                                    UserManager.saveUserInformation(account, password)
                                 }
-                        GlobalMessageManager.mClient = AVIMClient.getInstance(it.username)
-                        GlobalMessageManager.mClient.open(
-                            object : AVIMClientCallback() {
-                                override fun done(client: AVIMClient?, e: AVIMException?) {
-                                    Log.d("Client#open", if (e == null) "open client success" else "open client failed")
-                                }
+                                AVInstallation.getCurrentInstallation().saveInBackground(
+                                    object : SaveCallback() {
+                                        override fun done(e: AVException?) {
+                                            if (e != null) return
+                                            val user = AVUser.getCurrentUser()
+                                            user?.put(KEY_INSTALLATION_ID, AVInstallation.getCurrentInstallation().installationId)
+                                            user?.saveInBackground()
+                                        }
+                                    }
+                                )
+                                GlobalMessageManager.mClient = AVIMClient.getInstance(it.username)
+                                GlobalMessageManager.mClient.open(
+                                    object : AVIMClientCallback() {
+                                        override fun done(client: AVIMClient?, e: AVIMException?) {
+                                            Log.d("Client#open", if (e == null) "open client success" else "open client failed")
+                                        }
+                                    }
+                                )
+                                it
                             }
-                        )
-                        it
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe({
+                                callback.onSuccess()
+                            }, {
+                                if (it.message?.isNotBlank() == true) {
+                                    callback.onFailed(it.message!!)
+                                }
+                            })
                     }
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe({
-                        callback.onSuccess()
-                    }, {
-                        if (it.message?.isNotBlank() == true) {
-                            callback.onFailed(it.message!!)
-                        }
-                    })
+                }
+            )
         } else {
             callback.onFailed(check.second)
         }

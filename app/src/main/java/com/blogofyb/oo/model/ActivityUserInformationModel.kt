@@ -1,7 +1,11 @@
 package com.blogofyb.oo.model
 
-import cn.leancloud.AVFile
-import cn.leancloud.AVUser
+//import cn.leancloud.AVFile
+//import cn.leancloud.AVUser
+import com.avos.avoscloud.AVException
+import com.avos.avoscloud.AVFile
+import com.avos.avoscloud.AVUser
+import com.avos.avoscloud.SaveCallback
 import com.blogofyb.oo.base.mvp.BaseModel
 import com.blogofyb.oo.bean.UserBean
 import com.blogofyb.oo.config.*
@@ -18,29 +22,31 @@ import java.io.File
  */
 class ActivityUserInformationModel : BaseModel(), IActivityUserInformationModel {
     override fun updateUserHead(path: String, callback: () -> Unit) {
-        val head = AVFile(path.split("/").last(), File(path))
-        head.saveInBackground()
-            .subscribeOn(Schedulers.io())
-            .observeOn(Schedulers.io())
-            .safeSubscribeBy {
-                val user = AVUser.currentUser()
-                user.put(KEY_USER_HEADER, it.url)
-                user.save()
-                callback()
+        val head = AVFile.withAbsoluteLocalPath(path.split("/").last(), path)
+        head.saveInBackground(
+            object : SaveCallback() {
+                override fun done(e: AVException?) {
+                    val user = AVUser.getCurrentUser()
+                    user.put(KEY_USER_HEADER, head.url)
+                    user.save()
+                    callback()
+                }
             }
+        )
     }
 
     override fun updateUserBg(path: String, callback: () -> Unit) {
-        val bg = AVFile(path.split("/").last(), File(path))
-        bg.saveInBackground()
-            .subscribeOn(Schedulers.io())
-            .observeOn(Schedulers.io())
-            .safeSubscribeBy {
-                val user = AVUser.currentUser()
-                user.put(KEY_BG, it.url)
-                user.save()
-                callback()
+        val bg = AVFile.withAbsoluteLocalPath(path.split("/").last(), path)
+        bg.saveInBackground(
+            object : SaveCallback() {
+                override fun done(e: AVException?) {
+                    val user = AVUser.getCurrentUser()
+                    user.put(KEY_BG, bg.url)
+                    user.save()
+                    callback()
+                }
             }
+        )
     }
 
     override fun getUserInformation(username: String, callback: (UserBean) -> Unit) {
@@ -62,7 +68,7 @@ class ActivityUserInformationModel : BaseModel(), IActivityUserInformationModel 
                             it.getString(KEY_SCHOOL) ?: "",
                             it.getString(KEY_BG) ?: ""
                     )
-                    val currentUser = AVUser.currentUser()
+                    val currentUser = AVUser.getCurrentUser()
                     if (currentUser.username == username) {
                         currentUser.put(KEY_NICKNAME, it.getString(KEY_NICKNAME))
                         currentUser.put(KEY_SIGNATURE, it.getString(KEY_SIGNATURE))

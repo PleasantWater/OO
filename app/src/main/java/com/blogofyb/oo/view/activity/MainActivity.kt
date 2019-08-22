@@ -8,7 +8,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.view.GravityCompat
 import androidx.viewpager.widget.ViewPager
-import cn.leancloud.AVUser
+import com.avos.avoscloud.AVUser
+//import cn.leancloud.AVUser
 import com.blogofyb.oo.R
 import com.blogofyb.oo.base.BaseActivity
 import com.blogofyb.oo.config.*
@@ -65,7 +66,7 @@ class MainActivity : BaseActivity() {
         val userHeader: ImageView = headerView.findViewById(R.id.iv_user_head)
         val userName: TextView = headerView.findViewById(R.id.tv_user_name)
         val userSignature: TextView = headerView.findViewById(R.id.tv_user_signature)
-        val currentUser = AVUser.currentUser()
+        val currentUser = AVUser.getCurrentUser()
         userName.text = currentUser?.getString(KEY_NICKNAME) ?: currentUser.username
         userSignature.text = currentUser?.getString((KEY_SIGNATURE))
         userHeader.setImageFromUrl(currentUser?.getString(KEY_USER_HEADER), R.drawable.ic_launcher,
@@ -113,7 +114,7 @@ class MainActivity : BaseActivity() {
 
                 }
                 R.id.item_logout -> {
-                    val user = AVUser.currentUser()
+                    val user = AVUser.getCurrentUser()
                     val username = user?.username ?: ""
                     UserManager.logout(username)
                     AVUser.logOut()

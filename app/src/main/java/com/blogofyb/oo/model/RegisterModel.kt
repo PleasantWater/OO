@@ -1,7 +1,11 @@
 package com.blogofyb.oo.model
 
 import android.annotation.SuppressLint
-import cn.leancloud.AVUser
+import com.avos.avoscloud.AVException
+//import cn.leancloud.AVUser
+import com.avos.avoscloud.AVUser
+import com.avos.avoscloud.LogInCallback
+import com.avos.avoscloud.SignUpCallback
 import com.blogofyb.oo.base.mvp.BaseModel
 import com.blogofyb.oo.config.KEY_NICKNAME
 import com.blogofyb.oo.interfaces.model.IRegisterModel
@@ -25,24 +29,29 @@ class RegisterModel : BaseModel(), IRegisterModel {
         if (check.first) {
             val user = AVUser()
             user.username = account
-            user.password = password
+            user.setPassword(password)
             user.put(KEY_NICKNAME, account)
-            user.signUpInBackground()
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(Schedulers.io())
-                    .flatMap {
-                        UserManager.saveUserInformation(account, password)
-                        AVUser.logIn(account, password)
-                    }
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe({
-                        callback.registerSuccess()
-                    }, {
-                        if (it.message?.isNotBlank() == true) {
-                            callback.registerFailed(it.message!!)
+            user.signUpInBackground(
+                object : SignUpCallback() {
+                    override fun done(e: AVException?) {
+                        if (e != null)  {
+                            callback.registerFailed(e.message!!)
+                        } else {
+                            UserManager.saveUserInformation(account, password)
+                            AVUser.logInInBackground(
+                                account,
+                                password,
+                                object : LogInCallback<AVUser>() {
+                                    override fun done(user: AVUser?, e: AVException?) {
+                                        if (e != null) return
+                                        callback.registerSuccess()
+                                    }
+                                }
+                            )
                         }
-                    })
+                    }
+                }
+            )
         } else {
             callback.registerFailed(check.second)
         }

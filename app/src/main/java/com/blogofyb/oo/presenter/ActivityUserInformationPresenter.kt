@@ -1,6 +1,7 @@
 package com.blogofyb.oo.presenter
 
-import cn.leancloud.AVUser
+//import cn.leancloud.AVUser
+import com.avos.avoscloud.AVUser
 import com.blogofyb.oo.base.mvp.BasePresenter
 import com.blogofyb.oo.interfaces.model.IActivityUserInformationModel
 import com.blogofyb.oo.interfaces.presenter.IActivityUserInformationPresenter
@@ -16,7 +17,7 @@ class ActivityUserInformationPresenter :
         IActivityUserInformationPresenter {
     override fun updateUserHead(path: String) {
         model?.updateUserHead(path) {
-            model?.getUserInformation(AVUser.currentUser().username) {
+            model?.getUserInformation(AVUser.getCurrentUser().username) {
                 view?.showUserInformation(it)
             }
         }
@@ -24,7 +25,7 @@ class ActivityUserInformationPresenter :
 
     override fun updateUserBg(path: String) {
         model?.updateUserBg(path) {
-            model?.getUserInformation(AVUser.currentUser().username) {
+            model?.getUserInformation(AVUser.getCurrentUser().username) {
                 view?.showUserInformation(it)
             }
         }

@@ -1,7 +1,10 @@
 package com.blogofyb.oo.model
 
 import android.annotation.SuppressLint
-import cn.leancloud.AVUser
+import com.avos.avoscloud.AVException
+//import cn.leancloud.AVUser
+import com.avos.avoscloud.AVUser
+import com.avos.avoscloud.GetCallback
 import com.blogofyb.oo.base.mvp.BaseModel
 import com.blogofyb.oo.bean.UserBean
 import com.blogofyb.oo.config.*
@@ -18,7 +21,7 @@ import java.util.*
 class FragmentFriendsModel : BaseModel(), IFragmentFriendsModel {
     @SuppressLint("CheckResult")
     override fun getFriends(callback: (List<UserBean>) -> Unit) {
-        val user = AVUser.currentUser() ?: return
+        val user = AVUser.getCurrentUser() ?: return
         val friends: Vector<UserBean> = Vector()
         val friendsList = user.getList(KEY_FRIENDS) ?: return
         Observable.fromIterable(friendsList as List<String>)
@@ -26,7 +29,7 @@ class FragmentFriendsModel : BaseModel(), IFragmentFriendsModel {
             .observeOn(Schedulers.io())
             .concatMap {
                 val query = AVUser.getQuery()
-                query.whereContains(KEY_USERNAME, it).firstInBackground
+                Observable.just(query.whereContains(KEY_USERNAME, it).first)
             }
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({

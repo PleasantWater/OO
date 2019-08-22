@@ -2,13 +2,21 @@ package com.blogofyb.oo.util
 
 import android.app.*
 import android.util.Log
-import cn.leancloud.AVUser
-import cn.leancloud.im.v2.*
-import cn.leancloud.im.v2.callback.AVIMConversationCreatedCallback
-import cn.leancloud.im.v2.messages.AVIMTextMessage
+//import cn.leancloud.AVUser
+//import cn.leancloud.im.v2.*
+//import cn.leancloud.im.v2.callback.AVIMConversationCreatedCallback
+//import cn.leancloud.im.v2.messages.AVIMTextMessage
 import android.content.Intent
 import android.os.Build
-import cn.leancloud.im.v2.messages.AVIMImageMessage
+import com.avos.avoscloud.AVException
+import com.avos.avoscloud.AVUser
+import com.avos.avoscloud.FindCallback
+import com.avos.avoscloud.GetCallback
+import com.avos.avoscloud.im.v2.*
+import com.avos.avoscloud.im.v2.callback.AVIMConversationCreatedCallback
+import com.avos.avoscloud.im.v2.messages.AVIMImageMessage
+import com.avos.avoscloud.im.v2.messages.AVIMTextMessage
+//import cn.leancloud.im.v2.messages.AVIMImageMessage
 import com.blogofyb.oo.BaseApp.Companion.context
 import com.blogofyb.oo.R
 import com.blogofyb.oo.bean.ConversationBean
@@ -53,10 +61,22 @@ object GlobalMessageManager {
                     val observer2 = mObservers[context.packageName]
                     if (observer1 == null && observer2 == null) {
                         // 弹出通知
-                        AVUser.getQuery().whereEqualTo(KEY_USERNAME, conversationId).firstInBackground
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .safeSubscribeBy { sendNotification(message, it.getString(KEY_NICKNAME)) }
+                        AVUser.getQuery().whereEqualTo(KEY_USERNAME, conversationId)
+//                            .firstInBackground
+//                            .subscribeOn(Schedulers.io())
+//                            .observeOn(AndroidSchedulers.mainThread())
+//                            .safeSubscribeBy {  }
+                            .getFirstInBackground(
+                                object : GetCallback<AVUser>() {
+                                    override fun done(
+                                        avObjects: AVUser?,
+                                        avException: AVException?
+                                    ) {
+                                        if (avObjects == null) return
+                                        sendNotification(message, avObjects.getString(KEY_NICKNAME))
+                                    }
+                                }
+                            )
                     } else {
                         observer1?.onMessage(message, conversation)
                     }
@@ -98,7 +118,7 @@ object GlobalMessageManager {
                         }
 
 
-                    Log.d(conversationId, message.toJSONString())
+                    Log.d(conversationId, message.toString())
                 }
             }
         )
@@ -121,7 +141,7 @@ object GlobalMessageManager {
     fun getConversation(member: String?, callback: (AVIMConversation) -> Unit) {
         mClient.createConversation(
             listOf(member),
-            "$member & ${AVUser.currentUser()?.username}",
+            "$member & ${AVUser.getCurrentUser()?.username}",
             null,
             false,
             true,

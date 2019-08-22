@@ -7,7 +7,8 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
-import cn.leancloud.AVUser
+import com.avos.avoscloud.AVUser
+//import cn.leancloud.AVUser
 import com.blogofyb.oo.R
 import com.blogofyb.oo.base.mvp.BaseActivity
 import com.blogofyb.oo.bean.UserBean
@@ -59,7 +60,7 @@ class UserInformationActivity :
         btn_user_information.gone()
         tv_user_signature.gone()
 
-        val username = AVUser.currentUser()?.username
+        val username = AVUser.getCurrentUser()?.username
         if (mUsername == username) {
             btn_user_information.text = "修改资料"
             btn_user_information.setOnClickListener {

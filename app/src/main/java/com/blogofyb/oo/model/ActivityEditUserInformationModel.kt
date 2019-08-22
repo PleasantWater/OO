@@ -1,6 +1,7 @@
 package com.blogofyb.oo.model
 
-import cn.leancloud.AVUser
+//import cn.leancloud.AVUser
+import com.avos.avoscloud.AVUser
 import com.blogofyb.oo.base.mvp.BaseModel
 import com.blogofyb.oo.bean.UserBean
 import com.blogofyb.oo.config.*
@@ -14,15 +15,12 @@ import io.reactivex.schedulers.Schedulers
  */
 class ActivityEditUserInformationModel : BaseModel(), IActivityEditUserInformationModel {
     override fun updateUserInformation(userInformation: UserBean) {
-        val user = AVUser.currentUser() ?: return
+        val user = AVUser.getCurrentUser() ?: return
         user.put(KEY_NICKNAME, userInformation.nickname)
         user.put(KEY_GENDER, userInformation.gender)
         user.put(KEY_SCHOOL, userInformation.school)
         user.put(KEY_HOMETOWN, userInformation.hometown)
         user.put(KEY_SIGNATURE, userInformation.signature)
         user.saveInBackground()
-            .subscribeOn(Schedulers.io())
-            .observeOn(Schedulers.io())
-            .safeSubscribeBy {  }
     }
 }
