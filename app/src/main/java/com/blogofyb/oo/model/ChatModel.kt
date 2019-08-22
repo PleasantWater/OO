@@ -26,7 +26,6 @@ import com.avos.avoscloud.im.v2.messages.AVIMVideoMessage
 //import cn.leancloud.im.v2.messages.AVIMVideoMessage
 import com.blogofyb.oo.base.mvp.BaseModel
 import com.blogofyb.oo.bean.MessageBean
-import com.blogofyb.oo.config.KEY_OBJECT_ID
 import com.blogofyb.oo.config.KEY_USER_HEADER
 import com.blogofyb.oo.interfaces.model.IChatModel
 import com.blogofyb.oo.util.extensions.safeSubscribeBy
@@ -78,7 +77,11 @@ class ChatModel : BaseModel(), IChatModel {
                         callback(MessageBean(
                             isSend = true,
                             pic = pic.url,
+<<<<<<< HEAD
                             header = AVUser.getCurrentUser().getString(KEY_USER_HEADER))
+=======
+                            header = AVUser.currentUser().getString(KEY_USER_HEADER))
+>>>>>>> 30e3e0527606646cad50545fe2a261ff49438482
                         )
                     } else {
                         Log.e("senPic", e.message ?: "Exception")
