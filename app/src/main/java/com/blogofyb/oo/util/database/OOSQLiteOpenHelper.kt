@@ -12,7 +12,7 @@ import com.blogofyb.oo.config.TABLE_USER
  * Create by yuanbing
  * on 2019/8/15
  */
-object WanAndroidSQLiteOpenHelper : SQLiteOpenHelper(
+object OOSQLiteOpenHelper : SQLiteOpenHelper(
     BaseApp.context,
     DATABASE,
     null,

@@ -15,7 +15,6 @@ import cn.leancloud.im.v2.messages.AVIMTextMessage
 import cn.leancloud.im.v2.messages.AVIMVideoMessage
 import com.blogofyb.oo.base.mvp.BaseModel
 import com.blogofyb.oo.bean.MessageBean
-import com.blogofyb.oo.config.KEY_OBJECT_ID
 import com.blogofyb.oo.config.KEY_USER_HEADER
 import com.blogofyb.oo.interfaces.model.IChatModel
 import com.blogofyb.oo.util.extensions.safeSubscribeBy
@@ -57,32 +56,24 @@ class ChatModel : BaseModel(), IChatModel {
     }
 
     override fun sendPic(path: String, callback: (MessageBean) -> Unit) {
-        val pic = AVFile("${conversation.conversationId}_${System.currentTimeMillis()}.png", File(path))
-        pic.saveInBackground()
-            .subscribeOn(Schedulers.io())
-            .observeOn(Schedulers.io())
-            .safeSubscribeBy {
-                val file = AVFile(it.name, it.url, null)
-                Log.e("TEST", it.url)
-                val message = AVIMImageMessage(file)
-                message.text = "[图片]"
-                conversation.sendMessageByCustom(
-                    message,
-                    object  : AVIMConversationCallback() {
-                        override fun done(e: AVIMException?) {
-                            if (e == null) {
-                                callback(MessageBean(
-                                    isSend = true,
-                                    pic = it.url,
-                                    header = AVUser.currentUser().getString(KEY_USER_HEADER))
-                                )
-                            } else {
-                                Log.e("senPic", e.message ?: "Exception")
-                            }
-                        }
+        val pic = AVFile.withAbsoluteLocalPath("${conversation.conversationId}_${System.currentTimeMillis()}.png", path)
+        val message = AVIMImageMessage(pic)
+        conversation.sendMessageByCustom(
+            message,
+            object  : AVIMConversationCallback() {
+                override fun done(e: AVIMException?) {
+                    if (e == null) {
+                        callback(MessageBean(
+                            isSend = true,
+                            pic = pic.url,
+                            header = AVUser.currentUser().getString(KEY_USER_HEADER))
+                        )
+                    } else {
+                        Log.e("senPic", e.message ?: "Exception")
                     }
-                )
+                }
             }
+        )
     }
 
     override fun getMessage(limit: Int, callback: (List<MessageBean>) -> Unit) {
