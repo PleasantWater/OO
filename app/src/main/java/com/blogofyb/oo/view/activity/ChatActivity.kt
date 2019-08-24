@@ -26,6 +26,7 @@ import com.blogofyb.oo.R
 import com.blogofyb.oo.base.mvp.BaseActivity
 import com.blogofyb.oo.bean.MessageBean
 import com.blogofyb.oo.config.KEY_NICKNAME
+import com.blogofyb.oo.config.KEY_PIC_PATH
 import com.blogofyb.oo.config.KEY_USERNAME
 import com.blogofyb.oo.config.KEY_USER_HEADER
 import com.blogofyb.oo.interfaces.model.IChatModel
@@ -103,7 +104,8 @@ class ChatActivity : BaseActivity<IChatView, IChatPresenter, IChatModel>(), ICha
 
     override fun showMessage(message: List<MessageBean>) {
         mAdapter.refreshData(message)
-        rv_chat.layoutManager?.scrollToPosition(message.size - 1)
+        // 滚不倒底？？
+        (rv_chat.layoutManager as? LinearLayoutManager)?.scrollToPositionWithOffset(message.size - 1, 0)
     }
 
     private fun initView() {
@@ -159,18 +161,8 @@ class ChatActivity : BaseActivity<IChatView, IChatPresenter, IChatModel>(), ICha
         iv_message_input_mic.setOnClickListener {  }
 
         iv_message_input_pic.setOnClickListener {
-            val intent = LPhotoPickerActivity.IntentBuilder(this@ChatActivity)
-                .maxChooseCount(1)
-                .columnsNumber(4)
-                .imageType(LPPImageType.ofAll())
-                .pauseOnScroll(false)
-                .isSingleChoose(true)
-                .theme(R.style.AppTheme)
-                .selectedPhotos(ArrayList())
-                .build()
-            doPermissionAction(Manifest.permission.WRITE_EXTERNAL_STORAGE) {
-                doAfterGranted { startActivityForResult(intent, 0) }
-            }
+            val intent = Intent(this@ChatActivity, SelectPicActivity::class.java)
+            startActivityForResult(intent, 0)
         }
 
         iv_message_input_camera.setOnClickListener {
@@ -202,6 +194,7 @@ class ChatActivity : BaseActivity<IChatView, IChatPresenter, IChatModel>(), ICha
     }
 
     override fun showMoreMessage(message: List<MessageBean>) {
+        if (message.isEmpty()) return
         mAdapter.showMoreMessage(message)
     }
 
@@ -214,18 +207,8 @@ class ChatActivity : BaseActivity<IChatView, IChatPresenter, IChatModel>(), ICha
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when (requestCode) {
             0 -> {
-                if (resultCode == Activity.RESULT_OK) {
-                    val result = LPhotoPickerActivity.getSelectedPhotos(data)
-                    val outUri = Uri.fromFile(File(cacheDir, "${System.currentTimeMillis()}.jpg"))
-                    UCrop.of(Uri.fromFile(File(result[0])), outUri)
-                        .start(this)
-                }
-            }
-            UCrop.REQUEST_CROP -> {
-                data?.let {
-                    val resultUri = UCrop.getOutput(data)
-                    presenter?.sendPic(resultUri?.path ?: "")
-                    Log.d("UCrop.REQUEST_CROP", resultUri?.path ?: "no file")
+                if (resultCode == Activity.RESULT_OK && data != null) {
+                    presenter?.sendPic(data.getStringExtra(KEY_PIC_PATH) ?: "")
                 }
             }
         }

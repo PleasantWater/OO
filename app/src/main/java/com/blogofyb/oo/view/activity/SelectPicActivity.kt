@@ -28,6 +28,7 @@ class SelectPicActivity : BaseActivity() {
     private lateinit var mPicUri: Uri
     private var mMaxRW = 0
     private var mMaxRH = 0
+    private var maxChooseCount = 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,13 +38,14 @@ class SelectPicActivity : BaseActivity() {
     }
 
     private fun initView() {
+        maxChooseCount = intent?.getIntExtra(KEY_PIC_COUNT, 1) ?: 1
         tv_cancel.setOnClickListener { finish() }
         val intentForPhotoPicker = LPhotoPickerActivity.IntentBuilder(this)
-            .maxChooseCount(intent?.getIntExtra(KEY_PIC_COUNT, 1) ?: 1)
+            .maxChooseCount(maxChooseCount)
             .columnsNumber(4)
             .imageType(LPPImageType.ofAll())
             .pauseOnScroll(false)
-            .isSingleChoose(false)
+            .isSingleChoose(maxChooseCount == 1)
             .theme(R.style.AppTheme)
             .selectedPhotos(ArrayList())
             .build()

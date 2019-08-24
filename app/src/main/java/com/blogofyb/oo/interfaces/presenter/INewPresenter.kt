@@ -12,4 +12,5 @@ import com.blogofyb.oo.interfaces.view.INewView
 interface INewPresenter : IBasePresenter<INewView, INewModel> {
     fun getNew(username: String)
     fun sendNew(new: NewBean)
+    fun getMoreNew(username: String)
 }

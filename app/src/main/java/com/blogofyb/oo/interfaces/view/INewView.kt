@@ -12,4 +12,5 @@ interface INewView : IBaseView {
     fun getNewFailed()
     fun sendNewSuccess(new: NewBean)
     fun sendNewFailed()
+    fun showMoreNew(new: List<NewBean>)
 }

@@ -1,6 +1,7 @@
 package com.blogofyb.oo.view.fragment
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -13,8 +14,10 @@ import com.blogofyb.oo.interfaces.model.INewModel
 import com.blogofyb.oo.interfaces.presenter.INewPresenter
 import com.blogofyb.oo.interfaces.view.INewView
 import com.blogofyb.oo.presenter.NewPresenter
+import com.blogofyb.oo.util.event.OnNewEndEvent
 import com.blogofyb.oo.util.event.PostNewEvent
 import com.blogofyb.oo.view.adapter.NewRecyclerViewAdapter
+import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import org.jetbrains.anko.support.v4.toast
@@ -66,8 +69,20 @@ class NewFragment : BaseFragment<INewView, INewPresenter, INewModel>(), INewView
         mAdapter.newNew(new)
     }
 
+    override fun showMoreNew(new: List<NewBean>) {
+        if (new.isEmpty()) return
+        mAdapter.showMoreNew(new)
+    }
+
     @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
     fun postNew(event: PostNewEvent) {
+        Log.d("eventBus", "postNew")
         presenter?.sendNew(event.new)
+        EventBus.getDefault().removeStickyEvent(event)
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun getMoreNew(event: OnNewEndEvent) {
+//        presenter?.getMoreNew(AVUser.getCurrentUser().username)
     }
 }

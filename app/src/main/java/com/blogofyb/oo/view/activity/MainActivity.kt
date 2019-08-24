@@ -3,6 +3,7 @@ package com.blogofyb.oo.view.activity
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.view.GravityCompat
@@ -23,6 +24,7 @@ import com.google.android.material.tabs.TabLayout
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.toolbar.*
 import org.greenrobot.eventbus.EventBus
+import org.jetbrains.anko.dip
 import java.util.*
 
 /**
@@ -100,6 +102,7 @@ class MainActivity : BaseActivity() {
                         1 -> R.drawable.ic_friends_unselected
                         else -> R.drawable.ic_new_unselected
                     })
+                    p0.text = ""
                 }
 
                 override fun onTabSelected(p0: TabLayout.Tab?) {
@@ -107,14 +110,17 @@ class MainActivity : BaseActivity() {
                     p0.setIcon(when (p0.position) {
                         0 -> {
                             toolbar.title = getString(R.string.dock_message)
+                            p0.text = getString(R.string.dock_message)
                             R.drawable.ic_message_selected
                         }
                         1 -> {
                             toolbar.title = getString(R.string.dock_friends)
+                            p0.text = getString(R.string.dock_friends)
                             R.drawable.ic_friends_selected
                         }
                         else -> {
                             toolbar.title = getString(R.string.dock_new)
+                            p0.text = getString(R.string.dock_new)
                             R.drawable.ic_new_selected
                         }
                     })
@@ -189,6 +195,7 @@ class MainActivity : BaseActivity() {
         when (requestCode) {
             0 -> {
                 if (resultCode == Activity.RESULT_OK && data != null) {
+                    Log.d("onActivityResult", "postNew")
                     EventBus.getDefault().postSticky(PostNewEvent(
                         data.getSerializableExtra(KEY_NEW) as NewBean))
                 }

@@ -13,6 +13,7 @@ import com.avos.avoscloud.im.v2.AVIMConversation
 import com.avos.avoscloud.im.v2.AVIMMessage
 import com.avos.avoscloud.im.v2.AVIMMessageOption
 import com.avos.avoscloud.im.v2.callback.AVIMConversationCallback
+import com.avos.avoscloud.im.v2.messages.AVIMImageMessage
 import com.avos.avoscloud.im.v2.messages.AVIMTextMessage
 import com.blogofyb.oo.bean.ConversationBean
 import com.blogofyb.oo.config.KEY_NICKNAME
@@ -55,7 +56,11 @@ fun AVIMConversation.sendMessageByCustom(
                                 val bean = ConversationBean()
                                 bean.header = user.getString(KEY_USER_HEADER)
                                 bean.nickname = user.getString(KEY_NICKNAME)
-                                bean.message = if (message is AVIMTextMessage) message.text else message.content
+                                bean.message = when (message) {
+                                    is AVIMTextMessage -> message.text
+                                    is AVIMImageMessage -> "图片"
+                                    else -> "未知消息"
+                                }
                                 bean.time = GlobalMessageManager.parseTimeStamp(message.timestamp)
                                 bean.username = conversationId
                                 bean

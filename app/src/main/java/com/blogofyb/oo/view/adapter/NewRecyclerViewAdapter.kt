@@ -9,7 +9,12 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.blogofyb.oo.R
 import com.blogofyb.oo.bean.NewBean
+import com.blogofyb.oo.util.DateBuilder
+import com.blogofyb.oo.util.event.OnNewEndEvent
+import com.blogofyb.oo.util.extensions.gone
 import com.blogofyb.oo.util.extensions.setImageFromUrl
+import com.blogofyb.oo.util.extensions.visible
+import org.greenrobot.eventbus.EventBus
 
 /**
  * Create by yuanbing
@@ -30,13 +35,22 @@ class NewRecyclerViewAdapter : RecyclerView.Adapter<NewViewHolder>() {
         val new = mNew[position]
         holder.mHeader.setImageFromUrl(new.header)
         holder.mNickname.text = new.nickname
-        holder.mTime.text = new.time
+        holder.mTime.text = DateBuilder.time(new.time)
         holder.mContent.text = new.content
-        holder.mPic.layoutManager = GridLayoutManager(
-            holder.itemView.context,
-            if (new.pic.size > 2) 3 else new.pic.size
-        )
-        holder.mPic.adapter = NewPicRecyclerViewAdapter(new.pic)
+        if (new.pic.isNotEmpty()) {
+            holder.mPic.visible()
+            holder.mPic.layoutManager = GridLayoutManager(
+                holder.itemView.context,
+                if (new.pic.size > 2) 3 else new.pic.size
+            )
+            holder.mPic.adapter = NewPicRecyclerViewAdapter(new.pic)
+        } else {
+            holder.mPic.gone()
+        }
+
+        if (position == itemCount - 1) {
+            EventBus.getDefault().post(OnNewEndEvent())
+        }
     }
 
     fun refreshData(new: List<NewBean>) {
@@ -47,6 +61,11 @@ class NewRecyclerViewAdapter : RecyclerView.Adapter<NewViewHolder>() {
     fun newNew(new: NewBean) {
         mNew.add(0, new)
         notifyItemInserted(0)
+    }
+
+    fun showMoreNew(new: List<NewBean>) {
+        mNew.addAll(new)
+        notifyDataSetChanged()
     }
 }
 

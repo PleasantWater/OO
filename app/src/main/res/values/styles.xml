@@ -21,4 +21,8 @@
         <item name="android:fitsSystemWindows">true</item>
     </style>
 
+    <style name="Toolbar.MenuText" parent="ThemeOverlay.AppCompat.Light">
+        <item name="android:textSize">18sp</item>
+    </style>
+
 </resources>

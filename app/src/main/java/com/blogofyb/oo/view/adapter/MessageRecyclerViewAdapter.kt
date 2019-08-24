@@ -12,6 +12,7 @@ import com.blogofyb.oo.bean.ConversationBean
 import com.blogofyb.oo.config.KEY_NICKNAME
 import com.blogofyb.oo.config.KEY_USERNAME
 import com.blogofyb.oo.config.KEY_USER_HEADER
+import com.blogofyb.oo.util.DateBuilder
 import com.blogofyb.oo.util.extensions.gone
 import com.blogofyb.oo.util.extensions.setImageFromUrl
 import com.blogofyb.oo.util.extensions.visible
@@ -36,7 +37,7 @@ class MessageRecyclerViewAdapter : RecyclerView.Adapter<MessageItemViewHolder>()
         val conversation = mConversation[position]
         holder.mNickname.text = conversation.nickname
         holder.mHeader.setImageFromUrl(conversation.header)
-        holder.mTime.text = conversation.time
+        holder.mTime.text = DateBuilder.time(conversation.time)
         holder.mDescription.text = conversation.message
         if (conversation.unreadCount == 0) {
             holder.mUnreadCount.gone()

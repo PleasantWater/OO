@@ -10,6 +10,7 @@ import com.blogofyb.oo.base.BaseActivity
 import com.blogofyb.oo.bean.NewBean
 import com.blogofyb.oo.config.*
 import com.blogofyb.oo.util.extensions.setImageFromUrl
+import com.blogofyb.oo.util.extensions.toast
 import com.blogofyb.oo.view.adapter.NewPicRecyclerViewAdapter
 import kotlinx.android.synthetic.main.activity_add_new.*
 import kotlinx.android.synthetic.main.toolbar.*
@@ -47,18 +48,22 @@ class AddNewActivity : BaseActivity() {
         toolbar.setNavigationOnClickListener { finish() }
         toolbar.inflateMenu(R.menu.add_new_tool_menu)
         toolbar.menu.getItem(0)?.setOnMenuItemClickListener {
-            val intent = Intent()
-            val user = AVUser.getCurrentUser()
-            intent.putExtra(KEY_NEW, NewBean(
-                user.getString(KEY_USER_HEADER),
-                user.getString(KEY_NICKNAME),
-                "",
-                et_add_new_content.text.toString(),
-                mPic,
-                user.username
-            ))
-            setResult(RESULT_OK, intent)
-            finish()
+            if (et_add_new_content.text.isBlank()) {
+                toast("输入不可以为空")
+            } else {
+                val intent = Intent()
+                val user = AVUser.getCurrentUser()
+                intent.putExtra(KEY_NEW, NewBean(
+                    user.getString(KEY_USER_HEADER),
+                    user.getString(KEY_NICKNAME),
+                    "",
+                    et_add_new_content.text.toString(),
+                    mPic,
+                    user.username
+                ))
+                setResult(RESULT_OK, intent)
+                finish()
+            }
             true
         }
     }

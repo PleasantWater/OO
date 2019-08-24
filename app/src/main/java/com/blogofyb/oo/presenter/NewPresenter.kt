@@ -43,4 +43,19 @@ class NewPresenter : BasePresenter<INewView, INewModel>(), INewPresenter {
             }
         )
     }
+
+    override fun getMoreNew(username: String) {
+        model?.getMore(
+            username,
+            object : INewModel.GetCallback {
+                override fun getNewSuccess(new: List<NewBean>) {
+                    view?.showMoreNew(new)
+                }
+
+                override fun getNewFailed() {
+                    view?.getNewFailed()
+                }
+            }
+        )
+    }
 }

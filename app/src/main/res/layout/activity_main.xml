@@ -38,13 +38,11 @@
             <com.google.android.material.tabs.TabItem
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:text="@string/dock_friends"
                 android:icon="@drawable/ic_friends_unselected" />
 
             <com.google.android.material.tabs.TabItem
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:text="@string/dock_new"
                 android:icon="@drawable/ic_new_unselected"/>
 
         </com.google.android.material.tabs.TabLayout>

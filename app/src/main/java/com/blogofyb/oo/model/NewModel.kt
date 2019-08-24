@@ -5,6 +5,7 @@ import com.avos.avoscloud.*
 import com.blogofyb.oo.base.mvp.BaseModel
 import com.blogofyb.oo.bean.NewBean
 import com.blogofyb.oo.interfaces.model.INewModel
+import com.blogofyb.oo.util.GlobalMessageManager
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -14,12 +15,9 @@ import io.reactivex.schedulers.Schedulers
  * on 8/23/19
  */
 class NewModel : BaseModel(), INewModel {
-    private var mOldStatus: Int = 0
-
     override fun getMore(username: String, callback: INewModel.GetCallback) {
         AVStatus.inboxQuery(AVUser.getCurrentUser(), AVStatus.INBOX_TYPE.TIMELINE.toString())
-            .limit(10)
-            .skip(mOldStatus)
+//            .limit(10)
             .findInBackground(
                 object : FindCallback<AVStatus>() {
                     @SuppressLint("CheckResult")
@@ -27,7 +25,6 @@ class NewModel : BaseModel(), INewModel {
                         avObjects: MutableList<AVStatus>?,
                         avException: AVException?
                     ) {
-                        mOldStatus += avObjects?.size ?: 0
                         if (avException != null) {
                             callback.getNewFailed()
                         } else {
@@ -39,7 +36,7 @@ class NewModel : BaseModel(), INewModel {
                                         NewBean(
                                             new.data["header"].toString(),
                                             new.data["nickname"].toString(),
-                                            new.data["time"].toString(),
+                                            GlobalMessageManager.parseTimeStamp(new.createdAt.time),
                                             new.data["content"].toString(),
                                             new.data["pic"] as List<String>,
                                             new.data["username"].toString()
@@ -59,7 +56,6 @@ class NewModel : BaseModel(), INewModel {
     }
 
     override fun getNew(username: String, callback: INewModel.GetCallback) {
-        mOldStatus = 0
         getMore(username, callback)
     }
 
