@@ -28,10 +28,6 @@ class SplashActivity : BaseActivity<ILoginView, ILoginPresenter, ILoginModel>(),
 
         initSplash()
         autoLogin()
-
-
-        GlobalMessageManager.loadDataFromFile()
-        Log.e("onCreate", "load data from file")
     }
 
     private fun autoLogin(): Boolean {

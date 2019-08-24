@@ -1,9 +1,8 @@
 package com.blogofyb.oo.view.activity
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.view.GravityCompat
@@ -12,15 +11,18 @@ import com.avos.avoscloud.AVUser
 //import cn.leancloud.AVUser
 import com.blogofyb.oo.R
 import com.blogofyb.oo.base.BaseActivity
+import com.blogofyb.oo.bean.NewBean
 import com.blogofyb.oo.config.*
 import com.blogofyb.oo.util.GlobalMessageManager
 import com.blogofyb.oo.util.UserManager
+import com.blogofyb.oo.util.event.PostNewEvent
 import com.blogofyb.oo.util.extensions.setImageFromUrl
 import com.blogofyb.oo.util.extensions.toast
 import com.blogofyb.oo.view.adapter.MainFragmentPagerAdapter
 import com.google.android.material.tabs.TabLayout
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.toolbar.*
+import org.greenrobot.eventbus.EventBus
 import java.util.*
 
 /**
@@ -50,15 +52,23 @@ class MainActivity : BaseActivity() {
         toolbar.setNavigationOnClickListener {
             dl_main.openDrawer(GravityCompat.START)
         }
-        toolbar.inflateMenu(R.menu.friend_menu)
+        toolbar.inflateMenu(R.menu.main_toolbar_menu)
         toolbar.menu.getItem(0)?.isVisible = false
+        toolbar.menu.getItem(1)?.isVisible = false
         toolbar.setOnMenuItemClickListener {
-            if (it.itemId == R.id.item_add_friend) {
-                val intent = Intent(this@MainActivity, AddFriendsActivity::class.java)
-                startActivity(intent)
+            when (it.itemId) {
+                R.id.item_add_friend -> {
+                    val intent = Intent(this@MainActivity, AddFriendsActivity::class.java)
+                    startActivity(intent)
+                }
+                R.id.item_add_new -> {
+                    val intent = Intent(this@MainActivity, AddNewActivity::class.java)
+                    startActivityForResult(intent, 0)
+                }
             }
             true
         }
+        toolbar.title = getString(R.string.dock_message)
     }
 
     private fun initNavigatorHeader() {
@@ -95,12 +105,22 @@ class MainActivity : BaseActivity() {
                 override fun onTabSelected(p0: TabLayout.Tab?) {
                     if (p0 == null) return
                     p0.setIcon(when (p0.position) {
-                        0 -> R.drawable.ic_message_selected
-                        1 -> R.drawable.ic_friends_selected
-                        else -> R.drawable.ic_new_selected
+                        0 -> {
+                            toolbar.title = getString(R.string.dock_message)
+                            R.drawable.ic_message_selected
+                        }
+                        1 -> {
+                            toolbar.title = getString(R.string.dock_friends)
+                            R.drawable.ic_friends_selected
+                        }
+                        else -> {
+                            toolbar.title = getString(R.string.dock_new)
+                            R.drawable.ic_new_selected
+                        }
                     })
                     vp_main.currentItem = p0.position
                     toolbar.menu.getItem(0)?.isVisible = p0.position == 1
+                    toolbar.menu.getItem(1)?.isVisible = p0.position == 2
                 }
             }
         )
@@ -119,7 +139,6 @@ class MainActivity : BaseActivity() {
                     UserManager.logout(username)
                     AVUser.logOut()
                     GlobalMessageManager.mClient.close(null)
-                    GlobalMessageManager.clearData()
                     val intent = Intent(this@MainActivity, LoginActivity::class.java)
                     startActivity(intent)
                     finish()
@@ -163,6 +182,17 @@ class MainActivity : BaseActivity() {
                     mFlag = false
                 }
             }, 1500)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        when (requestCode) {
+            0 -> {
+                if (resultCode == Activity.RESULT_OK && data != null) {
+                    EventBus.getDefault().postSticky(PostNewEvent(
+                        data.getSerializableExtra(KEY_NEW) as NewBean))
+                }
+            }
         }
     }
 }

@@ -8,12 +8,11 @@ import android.util.Log
 //import cn.leancloud.im.v2.messages.AVIMTextMessage
 import android.content.Intent
 import android.os.Build
-import com.avos.avoscloud.AVException
-import com.avos.avoscloud.AVUser
-import com.avos.avoscloud.FindCallback
-import com.avos.avoscloud.GetCallback
+import com.avos.avoscloud.*
 import com.avos.avoscloud.im.v2.*
 import com.avos.avoscloud.im.v2.callback.AVIMConversationCreatedCallback
+import com.avos.avoscloud.im.v2.callback.AVIMMessagesQueryCallback
+import com.avos.avoscloud.im.v2.callback.AVIMSingleMessageQueryCallback
 import com.avos.avoscloud.im.v2.messages.AVIMImageMessage
 import com.avos.avoscloud.im.v2.messages.AVIMTextMessage
 //import cn.leancloud.im.v2.messages.AVIMImageMessage
@@ -42,92 +41,78 @@ import kotlin.collections.HashSet
 object GlobalMessageManager {
     val CONVERSATIONS = TreeMap<String, ConversationBean>()
     lateinit var mClient: AVIMClient  // 突然意识到没网的情况下app就不能用了，就先这样吧
-    private val mObservers: HashMap<String, MessageObserver> = HashMap()
+    val mObservers: HashMap<String, MessageObserver> = HashMap()
     private val mNotificationManager = context.getSystemService(Activity.NOTIFICATION_SERVICE)
             as NotificationManager
     private val mSimpleDateFormat = SimpleDateFormat("yy-MM-dd HH:mm:ss", Locale.CHINA)
+    private val mOOMessageHandler = object : AVIMMessageHandler() {
+        override fun onMessage(
+            message: AVIMMessage?,
+            conversation: AVIMConversation?,
+            client: AVIMClient?
+        ) {
+            if (message == null || conversation == null) return
+            val conversationId = message.from
+            val observer1 = mObservers[conversationId]
+            val observer2 = mObservers[context.packageName]
+            if (observer1 == null && observer2 == null) {
+                // 弹出通知
+                AVUser.getQuery().whereEqualTo(KEY_USERNAME, conversationId)
+                    .getFirstInBackground(
+                        object : GetCallback<AVUser>() {
+                            override fun done(
+                                avObjects: AVUser?,
+                                avException: AVException?
+                            ) {
+                                if (avObjects == null) return
+                                sendNotification(message, avObjects.getString(KEY_NICKNAME))
+                            }
+                        }
+                    )
+            } else {
+                observer1?.onMessage(message, conversation)
+                conversation.read()
+            }
+
+            Observable.create<ConversationBean> {
+                val user = AVUser.getQuery().whereEqualTo(KEY_USERNAME, message.from).first
+                val conversationBean = ConversationBean(
+                    conversationId,
+                    parseTimeStamp(message.timestamp),
+                    when (message) {
+                        is AVIMTextMessage -> message.text
+                        is AVIMImageMessage -> "[图片]"
+                        else -> "[未知消息]"
+                    },
+                    user.getString(KEY_NICKNAME),
+                    conversation.unreadMessagesCount,
+                    user.getString(KEY_USER_HEADER),
+                    conversationId
+                )
+                conversation.read()
+                Log.d("unreadCount", conversation.unreadMessagesCount.toString())
+                it.onNext(conversationBean)
+                it.onComplete()
+            }
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .safeSubscribeBy {
+                    CONVERSATIONS[conversationId] = it
+                    observer2?.onMessage(message, conversation)
+                }
+
+
+            Log.d(conversationId, message.toString())
+        }
+    }
 
     init {
-        AVIMMessageManager.registerDefaultMessageHandler(
-            object : AVIMMessageHandler() {
-                override fun onMessage(
-                    message: AVIMMessage?,
-                    conversation: AVIMConversation?,
-                    client: AVIMClient?
-                ) {
-                    if (message == null || conversation == null) return
-                    val conversationId = message.from
-                    val observer1 = mObservers[conversationId]
-                    val observer2 = mObservers[context.packageName]
-                    if (observer1 == null && observer2 == null) {
-                        // 弹出通知
-                        AVUser.getQuery().whereEqualTo(KEY_USERNAME, conversationId)
-//                            .firstInBackground
-//                            .subscribeOn(Schedulers.io())
-//                            .observeOn(AndroidSchedulers.mainThread())
-//                            .safeSubscribeBy {  }
-                            .getFirstInBackground(
-                                object : GetCallback<AVUser>() {
-                                    override fun done(
-                                        avObjects: AVUser?,
-                                        avException: AVException?
-                                    ) {
-                                        if (avObjects == null) return
-                                        sendNotification(message, avObjects.getString(KEY_NICKNAME))
-                                    }
-                                }
-                            )
-                    } else {
-                        observer1?.onMessage(message, conversation)
-                    }
-
-                    Observable.create<ConversationBean> {
-                        val user = AVUser.getQuery().whereEqualTo(KEY_USERNAME, message.from).first
-                        val lastConversationBean = CONVERSATIONS[conversationId]
-                        val conversationBean = ConversationBean(
-                            conversationId,
-                            parseTimeStamp(message.timestamp),
-                            when (message) {
-                                is AVIMTextMessage -> message.text
-                                is AVIMImageMessage -> message.text
-                                else -> "[未知消息]"
-                            },
-                            user.getString(KEY_NICKNAME),
-                            if (observer1 != null) {
-                                0
-                            } else {
-                                if (lastConversationBean == null) {
-                                    1
-                                } else {
-                                    lastConversationBean.unreadCount + 1
-                                }
-                            },
-                            user.getString(KEY_USER_HEADER),
-                            conversationId
-                        )
-                        Log.e("TAG", conversationBean.unreadCount.toString())
-                        it.onNext(conversationBean)
-                        it.onComplete()
-                    }
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .safeSubscribeBy {
-                            CONVERSATIONS[conversationId] = it
-                            observer2?.onMessage(message, conversation)
-                            saveDataToFile()
-                        }
-
-
-                    Log.d(conversationId, message.toString())
-                }
-            }
-        )
+        AVIMMessageManager.registerDefaultMessageHandler(mOOMessageHandler)
     }
 
     fun subscribe(conversationId: String = context.packageName, observer: MessageObserver) {
         if (conversationId != context.packageName) {
             CONVERSATIONS[conversationId]?.unreadCount = 0
-            saveDataToFile()
         }
         mObservers[conversationId] = observer
         Log.d(conversationId, "subscribe")
@@ -154,15 +139,11 @@ object GlobalMessageManager {
         )
     }
 
-    interface MessageObserver {
-        fun onMessage(message: AVIMMessage, conversation: AVIMConversation)
-    }
-
     private fun sendNotification(message: AVIMMessage, nickname: String) {
         val intent = Intent(context, MainActivity::class.java)
         val pi = PendingIntent.getActivity(context, 0, intent, 0)
         if (Build.VERSION.SDK_INT >= 26) {
-            // 不知道为什么直接跳转聊天的界面就抛异常
+            // 不知道为什么直接跳转聊天界面就抛异常
             val channelId = "message"
             val channelName = "消息"
             mNotificationManager.createNotificationChannel(NotificationChannel(channelId, channelName,
@@ -170,7 +151,13 @@ object GlobalMessageManager {
             val nb = Notification.Builder(context, channelId)
                 .setSmallIcon(R.drawable.ic_launcher)
                 .setContentTitle(nickname)
-                .setContentText(if (message is AVIMTextMessage) message.text else message.content)
+                .setContentText(
+                    when (message) {
+                        is AVIMTextMessage -> message.text
+                        is AVIMImageMessage -> "[图片]"
+                        else -> message.content
+                    }
+                )
                 .setAutoCancel(true)
                 .setShowWhen(true)
                 .setContentIntent(pi)
@@ -193,7 +180,6 @@ object GlobalMessageManager {
     fun notifyMessageChanged(message: AVIMMessage, conversation: AVIMConversation) {
         val observer = mObservers[context.packageName]
         observer?.onMessage(message, conversation)
-        saveDataToFile()
     }
 
     fun parseTimeStamp(timeStamp: Long): String {
@@ -201,33 +187,64 @@ object GlobalMessageManager {
         return mSimpleDateFormat.format(date)
     }
 
-    private fun saveDataToFile() {
-        val conversations = mutableSetOf<String>()
-        val gson = Gson()
-        CONVERSATIONS.forEach {
-            conversations.add("${it.key}@${gson.toJson(it.value)}")
-            Log.d("", "${it.key}@${gson.toJson(it.value)}")
-        }
-        context.sharedPreferences(XML_CONVERSATION).editor {
-            putStringSet(KEY_CONVERSATIONS, conversations)
-        }
+    fun asyncMessage() {
+        Observable.just(AVUser.getCurrentUser().username)
+            .subscribeOn(Schedulers.io())
+            .observeOn(Schedulers.io())
+            .safeSubscribeBy { username ->
+                AVQuery<AVObject>(KEY_OBJECT_CONVERSATION).whereContains(KEY_OBJECT_MEMBER, username)
+                    .findInBackground(
+                        object : FindCallback<AVObject>() {
+                            override fun done(
+                                avObjects: MutableList<AVObject>?,
+                                avException: AVException?
+                            ) {
+                                if (avException != null) return
+                                Observable.just(avObjects)
+                                    .subscribeOn(Schedulers.io())
+                                    .observeOn(Schedulers.io())
+                                    .safeSubscribeBy {
+                                        it?.forEach { avConversation ->
+                                            val conversation = mClient.getConversation(avConversation.objectId)
+                                            val conversationId = avConversation.getList(
+                                                KEY_OBJECT_MEMBER).first { it != username }.toString()
+                                            val unreadCount = conversation.unreadMessagesCount
+                                            val user = AVUser.getQuery().whereEqualTo(KEY_USERNAME, conversationId).first
+                                            conversation.queryMessages(
+                                                1,
+                                                object : AVIMMessagesQueryCallback() {
+                                                    override fun done(
+                                                        msgs: MutableList<AVIMMessage>?,
+                                                        e: AVIMException?
+                                                    ) {
+                                                        if (e != null || msgs.isNullOrEmpty()) return
+                                                        val msg = msgs.first()
+                                                        CONVERSATIONS[conversationId] = ConversationBean(
+                                                            conversationId,
+                                                            parseTimeStamp(msg.timestamp),
+                                                            when (msg) {
+                                                                is AVIMTextMessage -> msg.text
+                                                                is AVIMImageMessage -> "[图片]"
+                                                                else -> "[未知消息]"
+                                                            },
+                                                            user.getString(KEY_NICKNAME),
+                                                            unreadCount,
+                                                            user.getString(KEY_USER_HEADER),
+                                                            conversationId
+                                                        )
+                                                        mObservers[context.packageName]?.onMessage(msg, conversation)
+                                                    }
+                                                }
+                                            )
+                                        }
+                                    }
+                            }
+                        }
+                    )
+            }
     }
 
-    fun loadDataFromFile() {
-        val gson = Gson()
-        val conversations = context.sharedPreferences(XML_CONVERSATION).getStringSet(
-            KEY_CONVERSATIONS, null) ?: return
-        conversations.forEach {
-            CONVERSATIONS[it.split("@").first()] = gson.fromJson(it.split("@").last(),
-                ConversationBean::class.java)
-            Log.d(it.split("@").first(), it.split("@").last())
-        }
-    }
-
-    fun clearData() {
-        context.sharedPreferences(XML_CONVERSATION).editor {
-            putStringSet(KEY_CONVERSATIONS, HashSet())
-        }
-        CONVERSATIONS.clear()
+    interface MessageObserver {
+        fun onMessage(message: AVIMMessage, conversation: AVIMConversation)
     }
 }

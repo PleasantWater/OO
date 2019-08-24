@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.avos.avoscloud.im.v2.AVIMConversation
 import com.avos.avoscloud.im.v2.AVIMMessage
 //import cn.leancloud.im.v2.AVIMConversation
@@ -24,12 +25,19 @@ import com.blogofyb.oo.view.adapter.MessageRecyclerViewAdapter
  */
 class MessageFragment : BaseFragment<IMessageView, IMessagePresenter, IMessageModel>(), IMessageView {
     private lateinit var mAdapter: MessageRecyclerViewAdapter
+    private lateinit var mRefresh: SwipeRefreshLayout
 
     override fun onCreateView(view: View, savedInstanceState: Bundle?) {
         val message: RecyclerView = view.findViewById(R.id.rv_message)
         mAdapter = MessageRecyclerViewAdapter()
         message.adapter = mAdapter
         message.layoutManager = LinearLayoutManager(context)
+        GlobalMessageManager.asyncMessage()
+        mRefresh = view.findViewById(R.id.srl_message)
+        mRefresh.setOnRefreshListener {
+            mRefresh.isRefreshing = true
+            GlobalMessageManager.asyncMessage()
+        }
     }
 
     override fun onResume() {
@@ -56,6 +64,7 @@ class MessageFragment : BaseFragment<IMessageView, IMessagePresenter, IMessageMo
     override fun createPresenter() = MessagePresenter()
 
     override fun showMessage(message: List<ConversationBean>) {
+        mRefresh.isRefreshing = false
         mAdapter.refreshData(message)
     }
 }

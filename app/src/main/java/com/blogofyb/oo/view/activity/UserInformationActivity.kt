@@ -12,10 +12,7 @@ import com.avos.avoscloud.AVUser
 import com.blogofyb.oo.R
 import com.blogofyb.oo.base.mvp.BaseActivity
 import com.blogofyb.oo.bean.UserBean
-import com.blogofyb.oo.config.KEY_NICKNAME
-import com.blogofyb.oo.config.KEY_USERNAME
-import com.blogofyb.oo.config.KEY_USER_HEADER
-import com.blogofyb.oo.config.KEY_USER_INFORMATION
+import com.blogofyb.oo.config.*
 import com.blogofyb.oo.interfaces.model.IActivityUserInformationModel
 import com.blogofyb.oo.interfaces.presenter.IActivityUserInformationPresenter
 import com.blogofyb.oo.interfaces.view.IActivityUserInformationView
@@ -48,7 +45,8 @@ class UserInformationActivity :
         mUsername = intent?.getStringExtra(KEY_USERNAME) ?: ""
 
         initToolbar()
-        initView()
+        btn_user_information.gone()
+        tv_user_signature.gone()
     }
 
     override fun onResume() {
@@ -57,50 +55,60 @@ class UserInformationActivity :
     }
 
     private fun initView() {
-        btn_user_information.gone()
-        tv_user_signature.gone()
+        iv_user_bg.setImageFromUrl(mUserInformation.bg)
+        tv_nickname.text = mUserInformation.nickname
+        tv_user_name.text = mUserInformation.username
+        tv_user_signature.text = mUserInformation.signature
+        tv_user_gender.text = mUserInformation.gender
+        tv_user_school.text = mUserInformation.school
+        tv_user_hometown.text = mUserInformation.hometown
+        iv_user_head.setImageFromUrl(mUserInformation.header)
 
-        val username = AVUser.getCurrentUser()?.username
-        if (mUsername == username) {
-            btn_user_information.text = "修改资料"
-            btn_user_information.setOnClickListener {
-                val intent = Intent(this@UserInformationActivity, EditUserInformationActivity::class.java)
-                intent.putExtra(KEY_USER_INFORMATION, mUserInformation)
-                startActivity(intent)
-            }
+        toolbar.setBackgroundColor(Color.TRANSPARENT)
+        app_bar_layout.setBackgroundColor(Color.TRANSPARENT)
 
-            val intent = LPhotoPickerActivity.IntentBuilder(this@UserInformationActivity)
-                .maxChooseCount(1)
-                .columnsNumber(4)
-                .imageType(LPPImageType.ofAll())
-                .pauseOnScroll(false)
-                .isSingleChoose(true)
-                .theme(R.style.AppTheme)
-                .selectedPhotos(ArrayList())
-                .build()
+        btn_user_information.visible()
+        tv_user_signature.visible()
+        when (mUserInformation.userType) {
+            0 -> {
+                btn_user_information.text = "修改资料"
+                btn_user_information.setOnClickListener {
+                    val intent = Intent(this@UserInformationActivity,
+                        EditUserInformationActivity::class.java)
+                    intent.putExtra(KEY_USER_INFORMATION, mUserInformation)
+                    startActivity(intent)
+                }
 
-            iv_user_head.setOnClickListener {
-                mIsHead = true
-                doPermissionAction(Manifest.permission.WRITE_EXTERNAL_STORAGE) {
-                    doAfterGranted { startActivityForResult(intent, 0) }
+                iv_user_head.setOnClickListener {
+                    val intent = Intent(this@UserInformationActivity, SelectPicActivity::class.java)
+                    intent.putExtra(KEY_MAX_WIDTH, iv_user_head.width)
+                    intent.putExtra(KEY_MAX_HEIGHT, iv_user_head.height)
+                    startActivityForResult(intent, 0)
+                }
+
+                iv_user_bg.setOnClickListener {
+                    val intent = Intent(this@UserInformationActivity, SelectPicActivity::class.java)
+                    intent.putExtra(KEY_MAX_WIDTH, iv_user_bg.width)
+                    intent.putExtra(KEY_MAX_HEIGHT, iv_user_bg.height)
+                    startActivityForResult(intent, 1)
                 }
             }
-
-            iv_user_bg.setOnClickListener {
-                mIsHead = false
-                doPermissionAction(Manifest.permission.WRITE_EXTERNAL_STORAGE) {
-                    doAfterGranted { startActivityForResult(intent, 1) }
+            1 -> {
+                btn_user_information.text = "加好友"
+                btn_user_information.setOnClickListener{
+                    presenter?.addFriend(mUsername)
                 }
             }
-        } else {
-            btn_user_information.text = "发消息"
-            btn_user_information.setOnClickListener {
-                val intent = Intent(this@UserInformationActivity, ChatActivity::class.java)
-                intent.putExtra(KEY_USERNAME, mUsername)
-                intent.putExtra(KEY_NICKNAME, mUserInformation.nickname)
-                intent.putExtra(KEY_USER_HEADER, mUserInformation.header)
-                startActivity(intent)
-                finish()
+            -1 -> {
+                btn_user_information.text = "发消息"
+                btn_user_information.setOnClickListener {
+                    val intent = Intent(this@UserInformationActivity, ChatActivity::class.java)
+                    intent.putExtra(KEY_USERNAME, mUsername)
+                    intent.putExtra(KEY_NICKNAME, mUserInformation.nickname)
+                    intent.putExtra(KEY_USER_HEADER, mUserInformation.header)
+                    startActivity(intent)
+                    finish()
+                }
             }
         }
     }
@@ -116,56 +124,39 @@ class UserInformationActivity :
 
     override fun showUserInformation(userInformation: UserBean) {
         mUserInformation = userInformation
-        iv_user_bg.setImageFromUrl(userInformation.bg)
-        tv_nickname.text =
-                if (userInformation.nickname.isBlank()) userInformation.username else userInformation.nickname
-        tv_user_name.text = userInformation.username
-        tv_user_signature.text = userInformation.signature
-        tv_user_gender.text = userInformation.gender
-        tv_user_school.text = userInformation.school
-        tv_user_hometown.text = userInformation.hometown
-        iv_user_head.setImageFromUrl(userInformation.header)
-
-        toolbar.setBackgroundColor(Color.TRANSPARENT)
-        app_bar_layout.setBackgroundColor(Color.TRANSPARENT)
-
-        btn_user_information.visible()
-        tv_user_signature.visible()
+        initView()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when (requestCode) {
             0 -> {
-                if (resultCode == Activity.RESULT_OK) {
-                    val result = LPhotoPickerActivity.getSelectedPhotos(data)
-                    val outUri = Uri.fromFile(File(cacheDir, "${System.currentTimeMillis()}.jpg"))
-                    UCrop.of(Uri.fromFile(File(result[0])), outUri)
-                        .withAspectRatio(1f, 1f)
-                        .withMaxResultSize(iv_user_head.width, iv_user_head.height)
-                        .start(this)
+                if (resultCode == Activity.RESULT_OK && data != null) {
+                    val path = data.getStringExtra(KEY_PIC_PATH)
+                    if (!path.isNullOrBlank()) {
+                        presenter?.updateUserHead(path)
+                    }
                 }
             }
             1 -> {
-                if (resultCode == Activity.RESULT_OK) {
-                    val result = LPhotoPickerActivity.getSelectedPhotos(data)
-                    val outUri = Uri.fromFile(File(cacheDir, "${System.currentTimeMillis()}.jpg"))
-                    UCrop.of(Uri.fromFile(File(result[0])), outUri)
-                        .withAspectRatio(iv_user_bg.width.toFloat(), iv_user_bg.height.toFloat())
-                        .withMaxResultSize(iv_user_bg.width, iv_user_bg.height)
-                        .start(this)
-                }
-            }
-            UCrop.REQUEST_CROP -> {
-                data?.let {
-                    val resultUri = UCrop.getOutput(data)
-                    if (mIsHead) {
-                        presenter?.updateUserHead(resultUri?.path ?: "")
-                    } else {
-                        presenter?.updateUserBg(resultUri?.path ?: "")
+                if (resultCode == Activity.RESULT_OK && data != null) {
+                    val path = data.getStringExtra(KEY_PIC_PATH)
+                    if (!path.isNullOrBlank()) {
+                        presenter?.updateUserBg(path)
                     }
-                    Log.d("UCrop.REQUEST_CROP", resultUri?.path ?: "no file")
                 }
             }
+        }
+    }
+
+    override fun addFriendSuccess() {
+        btn_user_information.text = "发消息"
+        btn_user_information.setOnClickListener {
+            val intent = Intent(this@UserInformationActivity, ChatActivity::class.java)
+            intent.putExtra(KEY_USERNAME, mUsername)
+            intent.putExtra(KEY_NICKNAME, mUserInformation.nickname)
+            intent.putExtra(KEY_USER_HEADER, mUserInformation.header)
+            startActivity(intent)
+            finish()
         }
     }
 }

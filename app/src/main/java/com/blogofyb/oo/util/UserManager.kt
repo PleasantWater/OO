@@ -30,6 +30,8 @@ object UserManager {
         BaseApp.context.sharedPreferences(XML_USER).editor {
             putBoolean(KEY_IS_HAVE_USER_XML, false)
         }
+        GlobalMessageManager.CONVERSATIONS.clear()
+        GlobalMessageManager.mObservers.clear()
     }
 
     fun currentUserInfo(): Pair<String, String> {

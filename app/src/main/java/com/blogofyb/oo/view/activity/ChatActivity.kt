@@ -2,6 +2,7 @@ package com.blogofyb.oo.view.activity
 
 import android.Manifest
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
@@ -9,9 +10,8 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.os.Bundle
 import android.util.Log
-import android.view.KeyEvent
-import android.view.View
-import android.view.ViewTreeObserver
+import android.view.*
+import android.view.inputmethod.InputMethodManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import cn.dreamtobe.kpswitch.util.KPSwitchConflictUtil
 import cn.dreamtobe.kpswitch.util.KeyboardUtil
@@ -22,13 +22,6 @@ import com.avos.avoscloud.im.v2.messages.AVIMAudioMessage
 import com.avos.avoscloud.im.v2.messages.AVIMImageMessage
 import com.avos.avoscloud.im.v2.messages.AVIMTextMessage
 import com.avos.avoscloud.im.v2.messages.AVIMVideoMessage
-//import cn.leancloud.AVUser
-//import cn.leancloud.im.v2.AVIMConversation
-//import cn.leancloud.im.v2.AVIMMessage
-//import cn.leancloud.im.v2.messages.AVIMAudioMessage
-//import cn.leancloud.im.v2.messages.AVIMImageMessage
-//import cn.leancloud.im.v2.messages.AVIMTextMessage
-//import cn.leancloud.im.v2.messages.AVIMVideoMessage
 import com.blogofyb.oo.R
 import com.blogofyb.oo.base.mvp.BaseActivity
 import com.blogofyb.oo.bean.MessageBean
@@ -59,23 +52,20 @@ import java.io.File
  */
 class ChatActivity : BaseActivity<IChatView, IChatPresenter, IChatModel>(), IChatView {
     private lateinit var mAdapter: ChatRecyclerViewAdapter
-    private lateinit var mListener: ViewTreeObserver.OnGlobalLayoutListener
+    private lateinit var mManager: InputMethodManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat)
         initToolbar()
         initInputTool()
+        mManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         initView()
 
         GlobalMessageManager.getConversation(intent?.getStringExtra(KEY_USERNAME)) {
             presenter?.bindConversation(it)
             presenter?.getMessage()
         }
-        mListener = ViewTreeObserver.OnGlobalLayoutListener {
-            scrollToBottom()
-        }
-        rv_chat.viewTreeObserver.addOnGlobalLayoutListener(mListener)
     }
 
     override fun onResume() {
@@ -112,18 +102,7 @@ class ChatActivity : BaseActivity<IChatView, IChatPresenter, IChatModel>(), ICha
     }
 
     override fun showMessage(message: List<MessageBean>) {
-        val fromHeader = intent?.getStringExtra(KEY_USER_HEADER)
-        val currentHeader = AVUser.getCurrentUser()?.getString(KEY_USER_HEADER)
-        mAdapter.refreshData(
-            message.map {
-                if (it.isSend) {
-                    it.header = currentHeader ?: ""
-                } else {
-                    it.header = fromHeader ?: ""
-                }
-                it
-            }
-        )
+        mAdapter.refreshData(message)
         rv_chat.layoutManager?.scrollToPosition(message.size - 1)
     }
 
@@ -154,6 +133,24 @@ class ChatActivity : BaseActivity<IChatView, IChatPresenter, IChatModel>(), ICha
                 }
             }
         )
+
+        rv_chat.viewTreeObserver.addOnGlobalLayoutListener {
+            if (mManager.isAcceptingText) {
+                scrollToBottom()
+            }
+        }
+
+        val detector = GestureDetector(
+            object : GestureDetector.SimpleOnGestureListener() {
+                override fun onScroll(e1: MotionEvent?, e2: MotionEvent?, distanceX: Float, distanceY: Float): Boolean {
+                    hideIME(rv_chat)
+                    return false
+                }
+            }
+        )
+        rv_chat.setOnTouchListener { _, motionEvent ->
+            detector.onTouchEvent(motionEvent)
+        }
     }
 
     private fun initInputTool() {
@@ -205,7 +202,7 @@ class ChatActivity : BaseActivity<IChatView, IChatPresenter, IChatModel>(), ICha
     }
 
     override fun showMoreMessage(message: List<MessageBean>) {
-        // TODO bug
+        mAdapter.showMoreMessage(message)
     }
 
     @Subscribe(threadMode = ThreadMode.POSTING)
@@ -232,5 +229,10 @@ class ChatActivity : BaseActivity<IChatView, IChatPresenter, IChatModel>(), ICha
                 }
             }
         }
+    }
+
+    private fun hideIME(view: View) {
+        et_message_input.clearFocus()
+        mManager.hideSoftInputFromWindow(view.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
     }
 }

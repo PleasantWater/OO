@@ -14,5 +14,6 @@ data class UserBean(
         val gender: String,
         val hometown: String,
         val school: String,
-        val bg: String
+        val bg: String,
+        var userType: Int = 0  // 0 -> 当前用户，-1 -> follower，1 -> 非follower
 ) : Serializable

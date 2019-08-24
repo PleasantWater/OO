@@ -4,11 +4,14 @@ import android.annotation.SuppressLint
 import com.avos.avoscloud.AVException
 //import cn.leancloud.AVUser
 import com.avos.avoscloud.AVUser
+import com.avos.avoscloud.FindCallback
 import com.avos.avoscloud.GetCallback
+import com.avos.avoscloud.callback.AVFriendshipCallback
 import com.blogofyb.oo.base.mvp.BaseModel
 import com.blogofyb.oo.bean.UserBean
 import com.blogofyb.oo.config.*
 import com.blogofyb.oo.interfaces.model.IFragmentFriendsModel
+import com.blogofyb.oo.util.extensions.safeSubscribeBy
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -22,30 +25,30 @@ class FragmentFriendsModel : BaseModel(), IFragmentFriendsModel {
     @SuppressLint("CheckResult")
     override fun getFriends(callback: (List<UserBean>) -> Unit) {
         val user = AVUser.getCurrentUser() ?: return
-        val friends: Vector<UserBean> = Vector()
-        val friendsList = user.getList(KEY_FRIENDS) ?: return
-        Observable.fromIterable(friendsList as List<String>)
-            .subscribeOn(Schedulers.io())
-            .observeOn(Schedulers.io())
-            .concatMap {
-                val query = AVUser.getQuery()
-                Observable.just(query.whereContains(KEY_USERNAME, it).first)
+        user.followerQuery(AVUser::class.java).include("follower").findInBackground(
+            object : FindCallback<AVUser>() {
+                override fun done(avObjects: MutableList<AVUser>?, avException: AVException?) {
+                    Observable.just(avObjects)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.io())
+                        .map { followers ->
+                            followers.map { follower ->
+                                UserBean(
+                                    follower.username,
+                                    follower.getString(KEY_NICKNAME) ?: "",
+                                    follower.getString(KEY_SIGNATURE) ?: "",
+                                    follower.getString(KEY_USER_HEADER) ?: "",
+                                    follower.getString(KEY_GENDER) ?: "",
+                                    follower.getString(KEY_HOMETOWN) ?: "",
+                                    follower.getString(KEY_SCHOOL) ?: "",
+                                    follower.getString(KEY_BG) ?: ""
+                                )
+                            }
+                        }
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .safeSubscribeBy { callback(it) }
+                }
             }
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({
-                val userInformation = UserBean(
-                    it.username,
-                    it.getString(KEY_NICKNAME) ?: "",
-                    it.getString(KEY_SIGNATURE) ?: "",
-                    it.getString(KEY_USER_HEADER) ?: "",
-                    it.getString(KEY_GENDER) ?: "",
-                    it.getString(KEY_HOMETOWN) ?: "",
-                    it.getString(KEY_SCHOOL) ?: "",
-                    it.getString(KEY_BG) ?: ""
-                )
-                friends.add(userInformation)
-            }, {}, {
-                callback(friends)
-            })
+        )
     }
 }

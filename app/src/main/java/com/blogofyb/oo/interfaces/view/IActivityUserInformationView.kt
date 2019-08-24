@@ -9,4 +9,5 @@ import com.blogofyb.oo.bean.UserBean
  */
 interface IActivityUserInformationView : IBaseView {
     fun showUserInformation(userInformation: UserBean)
+    fun addFriendSuccess()
 }

@@ -26,6 +26,7 @@ import com.avos.avoscloud.im.v2.messages.AVIMVideoMessage
 //import cn.leancloud.im.v2.messages.AVIMVideoMessage
 import com.blogofyb.oo.base.mvp.BaseModel
 import com.blogofyb.oo.bean.MessageBean
+import com.blogofyb.oo.config.KEY_USERNAME
 import com.blogofyb.oo.config.KEY_USER_HEADER
 import com.blogofyb.oo.interfaces.model.IChatModel
 import com.blogofyb.oo.util.extensions.safeSubscribeBy
@@ -77,11 +78,7 @@ class ChatModel : BaseModel(), IChatModel {
                         callback(MessageBean(
                             isSend = true,
                             pic = pic.url,
-<<<<<<< HEAD
                             header = AVUser.getCurrentUser().getString(KEY_USER_HEADER))
-=======
-                            header = AVUser.currentUser().getString(KEY_USER_HEADER))
->>>>>>> 30e3e0527606646cad50545fe2a261ff49438482
                         )
                     } else {
                         Log.e("senPic", e.message ?: "Exception")
@@ -133,21 +130,20 @@ class ChatModel : BaseModel(), IChatModel {
             .observeOn(Schedulers.io())
             .map {
                 oldMessage = it.first()
+                val fromHeader = AVUser.getQuery().whereEqualTo(
+                    KEY_USERNAME,
+                    conversation.members.first { it != AVUser.getCurrentUser().username }
+                ).first.getString(KEY_USER_HEADER)
+                val currentHeader = AVUser.getCurrentUser()?.getString(KEY_USER_HEADER) ?: ""
                 it.forEach { avimMessage ->
+                    val isSend = avimMessage.from == AVUser.getCurrentUser().username
                     message.add(MessageBean(
                         if (avimMessage is AVIMTextMessage) avimMessage.text else "",
-                        if (avimMessage is AVIMImageMessage) {
-                            AVQuery.getQuery<AVObject>("_File").whereEqualTo(
-                                "objectId",
-                                avimMessage
-                            ).first.getString("url")
-                            Log.d("objId", avimMessage.avFile.objectId)
-                            ""
-                        } else { "" },
+                        if (avimMessage is AVIMImageMessage) avimMessage.fileUrl else "",
                         if (avimMessage is AVIMAudioMessage) avimMessage.fileUrl else "",
                         if (avimMessage is AVIMVideoMessage) avimMessage.fileUrl else "",
-                        "",
-                        avimMessage.from == AVUser.getCurrentUser().username
+                        if (isSend) currentHeader else fromHeader,
+                        isSend
                     ))
                 }
             }

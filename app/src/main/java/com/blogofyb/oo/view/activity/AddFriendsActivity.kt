@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.blogofyb.oo.R
 import com.blogofyb.oo.base.mvp.BaseActivity
 import com.blogofyb.oo.bean.UserBean
@@ -11,6 +12,7 @@ import com.blogofyb.oo.interfaces.model.IAddFriendModel
 import com.blogofyb.oo.interfaces.presenter.IAddFriendsPresenter
 import com.blogofyb.oo.interfaces.view.IAddFriendsView
 import com.blogofyb.oo.presenter.AddFriendsPresenter
+import com.blogofyb.oo.view.adapter.FriendsRecyclerViewAdapter
 import kotlinx.android.synthetic.main.activity_add_friends.*
 import kotlinx.android.synthetic.main.toolbar.*
 
@@ -21,6 +23,7 @@ import kotlinx.android.synthetic.main.toolbar.*
 class AddFriendsActivity : BaseActivity<IAddFriendsView, IAddFriendsPresenter, IAddFriendModel>(),
     IAddFriendsView {
     private lateinit var mIMEManager: InputMethodManager
+    private lateinit var mAdapter: FriendsRecyclerViewAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,6 +32,13 @@ class AddFriendsActivity : BaseActivity<IAddFriendsView, IAddFriendsPresenter, I
 
         initToolbar()
         initEditText()
+        initView()
+    }
+
+    private fun initView() {
+        mAdapter = FriendsRecyclerViewAdapter()
+        rv_search_friend_result.adapter = mAdapter
+        rv_search_friend_result.layoutManager = LinearLayoutManager(this)
     }
 
     private fun initEditText() {
@@ -56,6 +66,6 @@ class AddFriendsActivity : BaseActivity<IAddFriendsView, IAddFriendsPresenter, I
     override fun createPresenter() = AddFriendsPresenter()
 
     override fun showSearchResult(user: List<UserBean>) {
-
+        mAdapter.refreshData(user)
     }
 }

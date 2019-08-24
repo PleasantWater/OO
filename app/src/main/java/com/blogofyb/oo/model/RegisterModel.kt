@@ -1,14 +1,19 @@
 package com.blogofyb.oo.model
 
 import android.annotation.SuppressLint
+import android.util.Log
 import com.avos.avoscloud.AVException
 //import cn.leancloud.AVUser
 import com.avos.avoscloud.AVUser
 import com.avos.avoscloud.LogInCallback
 import com.avos.avoscloud.SignUpCallback
+import com.avos.avoscloud.im.v2.AVIMClient
+import com.avos.avoscloud.im.v2.AVIMException
+import com.avos.avoscloud.im.v2.callback.AVIMClientCallback
 import com.blogofyb.oo.base.mvp.BaseModel
 import com.blogofyb.oo.config.KEY_NICKNAME
 import com.blogofyb.oo.interfaces.model.IRegisterModel
+import com.blogofyb.oo.util.GlobalMessageManager
 import com.blogofyb.oo.util.UserManager
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -38,6 +43,14 @@ class RegisterModel : BaseModel(), IRegisterModel {
                             callback.registerFailed(e.message!!)
                         } else {
                             UserManager.saveUserInformation(account, password)
+                            GlobalMessageManager.mClient = AVIMClient.getInstance(account)
+                            GlobalMessageManager.mClient.open(
+                                object : AVIMClientCallback() {
+                                    override fun done(client: AVIMClient?, e: AVIMException?) {
+                                        Log.d("Client#open", if (e == null) "open client success" else "open client failed")
+                                    }
+                                }
+                            )
                             AVUser.logInInBackground(
                                 account,
                                 password,

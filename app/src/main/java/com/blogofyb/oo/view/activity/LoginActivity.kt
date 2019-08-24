@@ -18,12 +18,9 @@ import kotlinx.android.synthetic.main.activity_login.*
  * on 2019/8/15
  */
 class LoginActivity : BaseActivity<ILoginView, ILoginPresenter, ILoginModel>(), ILoginView {
-    private lateinit var mDialog: Dialog
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
-        mDialog = Dialog(this)
 
         initToolbar()
         initView()
@@ -40,7 +37,6 @@ class LoginActivity : BaseActivity<ILoginView, ILoginPresenter, ILoginModel>(), 
                 et_password_login.text.toString(),
                 switch_remember_login.isChecked
             )
-            mDialog.show()
         }
 
         tv_goto_register.setOnClickListener {
@@ -57,12 +53,10 @@ class LoginActivity : BaseActivity<ILoginView, ILoginPresenter, ILoginModel>(), 
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
         finish()
-        mDialog.dismiss()
     }
 
     override fun loginFailed(msg: String) {
         toast(msg)
-        mDialog.dismiss()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

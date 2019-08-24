@@ -30,7 +30,6 @@ class BaseApp : Application() {
         // 初始化LeanCloud
         AVOSCloud.initialize(this, "cHihduhooJaIQx4Fge4TnFNp-gzGzoHsz",
             "LEgfaaGyj5yyAqmNb24iYgLh")
-        AVIMClient.setUnreadNotificationEnabled(false)
         PushService.setDefaultChannelId(this, context.packageName)
         PushService.setDefaultPushCallback(this, MainActivity::class.java)
     }

@@ -14,7 +14,6 @@
     </style>
 
     <style name="MyDialogTheme" parent="Theme.AppCompat.DayNight.Dialog">
-        <item name="dialogPreferredPadding">0dp</item>
         <item name="windowNoTitle">true</item>
     </style>
 

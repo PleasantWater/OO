@@ -5,6 +5,7 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import com.blogofyb.oo.view.fragment.FriendsFragment
 import com.blogofyb.oo.view.fragment.MessageFragment
+import com.blogofyb.oo.view.fragment.NewFragment
 
 /**
  * Create by yuanbing
@@ -13,8 +14,8 @@ import com.blogofyb.oo.view.fragment.MessageFragment
 class MainFragmentPagerAdapter(manager: FragmentManager) : FragmentPagerAdapter(manager) {
     private val mFragments: List<Fragment> = listOf(
         MessageFragment(),
-        FriendsFragment()
-
+        FriendsFragment(),
+        NewFragment()
     )
 
     override fun getItem(position: Int) = mFragments[position]

@@ -13,4 +13,5 @@ interface IActivityUserInformationPresenter :
     fun getUserInformation(username: String)
     fun updateUserHead(path: String)
     fun updateUserBg(path: String)
+    fun addFriend(username: String)
 }

@@ -10,6 +10,7 @@ import com.blogofyb.oo.R
 import com.blogofyb.oo.bean.MessageBean
 import com.blogofyb.oo.util.event.OnMessageScrollToTopEvent
 import com.blogofyb.oo.util.extensions.setImageFromUrl
+import com.blogofyb.oo.view.activity.showPhotos
 import org.greenrobot.eventbus.EventBus
 
 /**
@@ -81,11 +82,17 @@ class ChatRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() 
                 holder as SendPicMessageViewHolder
                 holder.pic.setImageFromUrl(message.pic)
                 holder.header.setImageFromUrl(message.header)
+                holder.pic.setOnClickListener {
+                    showPhotos(it.context, listOf(message.pic))
+                }
             }
             receivePicMessage -> {
                 holder as ReceivePicMessageViewHolder
                 holder.pic.setImageFromUrl(message.pic)
                 holder.header.setImageFromUrl(message.header)
+                holder.pic.setOnClickListener {
+                    showPhotos(it.context, listOf(message.pic))
+                }
             }
         }
     }
@@ -121,7 +128,7 @@ class ChatRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() 
 
     fun showMoreMessage(message: List<MessageBean>) {
         mMessage.addAll(0, message)
-        notifyDataSetChanged()
+        notifyItemRangeInserted(0, message.size)
     }
 }
 
@@ -141,6 +148,6 @@ class SendPicMessageViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 }
 
 class ReceivePicMessageViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-    val pic: ImageView = view.findViewById(R.id.iv_recycle_item_img_message_send)
+    val pic: ImageView = view.findViewById(R.id.iv_recycle_item_img_message_receive)
     val header: ImageView = view.findViewById(R.id.iv_user_head)
 }

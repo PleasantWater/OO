@@ -8,8 +8,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.blogofyb.oo.R
-import com.blogofyb.oo.base.TYPE_HEADER
-import com.blogofyb.oo.base.TYPE_ITEM
 import com.blogofyb.oo.bean.ConversationBean
 import com.blogofyb.oo.config.KEY_NICKNAME
 import com.blogofyb.oo.config.KEY_USERNAME
@@ -23,46 +21,35 @@ import com.blogofyb.oo.view.activity.ChatActivity
  * Create by yuanbing
  * on 2019/8/18
  */
-class MessageRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class MessageRecyclerViewAdapter : RecyclerView.Adapter<MessageItemViewHolder>() {
     private var mConversation: List<ConversationBean> = listOf()
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return if (viewType == TYPE_HEADER) {
-            val view = LayoutInflater.from(parent.context).inflate(R.layout.recycle_item_message,
-                parent, false)
-            MessageHeaderViewHolder(view)
-        } else {
-            val view = LayoutInflater.from(parent.context).inflate(R.layout.recycle_item_message,
-                parent, false)
-            MessageItemViewHolder(view)
-        }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MessageItemViewHolder {
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.recycle_item_message,
+            parent, false)
+        return MessageItemViewHolder(view)
     }
 
-    override fun getItemCount() = mConversation.size + 1
+    override fun getItemCount() = mConversation.size
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        if (getItemViewType(position) == TYPE_HEADER) {
-
+    override fun onBindViewHolder(holder: MessageItemViewHolder, position: Int) {
+        val conversation = mConversation[position]
+        holder.mNickname.text = conversation.nickname
+        holder.mHeader.setImageFromUrl(conversation.header)
+        holder.mTime.text = conversation.time
+        holder.mDescription.text = conversation.message
+        if (conversation.unreadCount == 0) {
+            holder.mUnreadCount.gone()
         } else {
-            holder as MessageItemViewHolder
-            val conversation = mConversation[position - 1]
-            holder.mNickname.text = conversation.nickname
-            holder.mHeader.setImageFromUrl(conversation.header)
-            holder.mTime.text = conversation.time
-            holder.mDescription.text = conversation.message
-            if (conversation.unreadCount == 0) {
-                holder.mUnreadCount.gone()
-            } else {
-                holder.mUnreadCount.visible()
-                holder.mUnreadCount.text = conversation.unreadCount.toString()
-            }
-            holder.itemView.setOnClickListener {
-                val intent = Intent(it.context, ChatActivity::class.java)
-                intent.putExtra(KEY_USERNAME, conversation.username)
-                intent.putExtra(KEY_NICKNAME, conversation.nickname)
-                intent.putExtra(KEY_USER_HEADER, conversation.header)
-                it.context.startActivity(intent)
-            }
+            holder.mUnreadCount.visible()
+            holder.mUnreadCount.text = conversation.unreadCount.toString()
+        }
+        holder.itemView.setOnClickListener {
+            val intent = Intent(it.context, ChatActivity::class.java)
+            intent.putExtra(KEY_USERNAME, conversation.username)
+            intent.putExtra(KEY_NICKNAME, conversation.nickname)
+            intent.putExtra(KEY_USER_HEADER, conversation.header)
+            it.context.startActivity(intent)
         }
     }
 
@@ -70,12 +57,6 @@ class MessageRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>
         mConversation = conversation
         notifyDataSetChanged()
     }
-
-    override fun getItemViewType(position: Int) = if (position == 0) TYPE_HEADER else TYPE_ITEM
-}
-
-class MessageHeaderViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-
 }
 
 class MessageItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {

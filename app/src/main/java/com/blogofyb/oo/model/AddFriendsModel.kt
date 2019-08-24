@@ -23,13 +23,13 @@ import io.reactivex.schedulers.Schedulers
 @Suppress("UNCHECKED_CAST")
 class AddFriendsModel : BaseModel(), IAddFriendModel {
     override fun searchUser(usernameOrNickname: String, callback: (List<UserBean>) -> Unit) {
-        val cql = "SELECT * FROM _User WHERE $KEY_USERNAME='$usernameOrNickname' OR $KEY_NICKNAME LIKE '%$usernameOrNickname%';"
+        val cql = "SELECT * FROM _User WHERE $KEY_USERNAME='$usernameOrNickname' OR $KEY_NICKNAME LIKE '%$usernameOrNickname%'"
         AVQuery.doCloudQueryInBackground(
             cql,
             object : CloudQueryCallback<AVCloudQueryResult>() {
                 override fun done(result: AVCloudQueryResult?, avException: AVException?) {
-                    if (avException == null) {
-                        Log.d("searchUser", avException?.message ?: "Exception")
+                    if (avException != null) {
+                        Log.d("searchUser", avException.message ?: "Exception")
                         return
                     } else {
                         if (result == null) return

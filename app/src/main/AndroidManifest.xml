@@ -8,6 +8,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CAMERA"/>
 
     <application
         android:name="com.blogofyb.oo.BaseApp"
@@ -29,6 +30,18 @@
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
             </intent-filter>
         </receiver>
+
+        <provider
+            android:authorities="com.blogofyb.oo.fileprovider"
+            android:name="androidx.core.content.FileProvider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths"/>
+
+        </provider>
 
         <activity android:name="com.blogofyb.oo.view.activity.SplashActivity"
             android:theme="@style/SplashTheme">
@@ -61,7 +74,12 @@
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
         <activity android:name=".view.activity.AddFriendsActivity"
+            android:windowSoftInputMode="adjustPan"/>
+        <activity android:name=".view.activity.PhotoViewerActivity" />
+        <activity android:name=".view.activity.AddNewActivity"
             android:windowSoftInputMode="adjustNothing"/>
+        <activity android:name=".view.activity.SelectPicActivity"
+            android:theme="@style/MyDialogTheme"/>
     </application>
 
 </manifest>
