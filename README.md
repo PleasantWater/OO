@@ -10,6 +10,6 @@
 
 *中途降了一次SDK，可能个别地方会出现网络请求在主线程的问题*
 
-[APK](./app/debug/app-debug.apk)
+[GitHub商店下载](https://github.com/PleasantWater/OO/blob/master/app/debug/app-debug.apk?raw=true)
 
 ![又不是不能用](https://img3.doubanio.com/view/thing_review/l/public/2189725.webp)
